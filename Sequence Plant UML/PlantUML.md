@@ -68,8 +68,10 @@
 - [`openapi.yaml`](../openapi.yaml) — Swagger-спецификация API (если есть)
 - [`README.md`](./README.md) — этот файл
 
----
+## 📬 Контакты
 
-Автор: Прасолов Михаил
+- 🔗 **Контакты автора**  
+  • TG: [@MikhailPrasolov](https://t.me/MikhailPrasolov)  
+  • Канал: [t.me/systemananalytics](https://t.me/systemananalytics)
 
-Telegram: t.me/systemananalytics
+> Если заметили ошибку или хотите дополнить материалы — смело открывайте Issue или присылайте Pull Request!

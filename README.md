@@ -48,7 +48,7 @@ SA_docs/
 | &nbsp; | &nbsp;Шаблон Swagger 2.0 | [`Шаблон Swagger 2.0.yaml`](https://github.com/MikhailPrasolov/SA_docs/blob/main/API/%D0%A8%D0%B0%D0%B1%D0%BB%D0%BE%D0%BD%20Swagger%202.0.yaml) | Аналогичный каркас под Swagger 2 |
 | 2 | **Database** | [`2. Database`](https://github.com/MikhailPrasolov/SA_docs/blob/main/Database/DataBase.md) | ER‑модели и документация БД |
 | &nbsp; | &nbsp;Модель в DBML | [`Пример БД.dbml`](https://github.com/MikhailPrasolov/SA_docs/blob/main/Database/%D0%9F%D1%80%D0%B8%D0%BC%D0%B5%D1%80%20%D0%91%D0%94.dbml) | Пример диаграммы для dbdiagram.io |
-| &nbsp; | &nbsp;Основной гайд | [`DataBase.md`](./2.%20Database/DataBase.md) | Как описывать схемы, naming conventions и т.д. |
+| &nbsp; | &nbsp;Основной гайд | [`DataBase.md`](https://github.com/MikhailPrasolov/SA_docs/blob/main/Database/DataBase.md) | Как описывать схемы, naming conventions и т.д. |
 | 3 | **Sequence Plant UML** | [`3. Sequence Plant UML`](https://github.com/MikhailPrasolov/SA_docs/tree/main/Sequence%20Plant%20UML) | Диаграммы последовательности (PlantUML) |
 | &nbsp; | &nbsp;Шаблон | [`Шаблон Sequence.wsd`](https://github.com/MikhailPrasolov/SA_docs/blob/main/Sequence%20Plant%20UML/%D0%A8%D0%B0%D0%B1%D0%BB%D0%BE%D0%BD%20Sequence%20.wsd) | Минимальный boilerplate |
 | &nbsp; | &nbsp;Пример | [`Пример Sequence.wsd`](https://github.com/MikhailPrasolov/SA_docs/blob/main/Sequence%20Plant%20UML/%D0%9F%D1%80%D0%B8%D0%BC%D0%B5%D1%80%20Sequence.wsd) | Реальная диаграмма для reference |
