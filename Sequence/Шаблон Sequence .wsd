@@ -1,0 +1,133 @@
+@startuml Редактирование/Удаление сотрудника из команды потенциала
+
+autonumber
+
+title Редактирование/Удаление сотрудника из команды потенциала
+
+'Константы
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+!$Add="#CCFF99"
+!$Update="#FFFF99"
+!$Delete="#FFC0CB"
+!$Backend="#LightYellow"
+!$Frontend="#FFD700"
+!$ExternalSystem="#afdafc"
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Легенда (если не нужна то закомментируйте)
+legend top left
+    | <size:20> Легенда </size>             |
+    | <$Add>  Добавить                      |
+    | <$Update>  Изменить                   |
+    | <$Delete>  Удалить                    |
+    | <$Backend> Комментарий для бекенда    |
+    | <$Frontend> Комментарий для фронтенда |
+    | <$ExternalSystem> Внешняя АС          |
+endlegend
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'Описание стиля диаграммы
+scale 0.85
+!include <cloudinsight/kafka>
+ skinparam {
+     MaxMessageSize 150
+     RoundCorner 10
+     ActorFontSize 20
+     ParticipantBackgroundColor #e0f3f1/#a3ccc9
+     ParticipantFontSize 17
+     QueueFontSize 10
+     QueueBackgroundColor #e0f3f1/#a3ccc9
+     DatabaseFontSize 20
+     DatabaseBackgroundColor #e0f3f1/#a3ccc9
+     BoundaryFontSize 20
+     ControlFontSize 20
+     EntityFontSize 20
+     TitleFontColor Black
+     TitleBackgroundColor #O_FEO_FEce
+     TitleBorderRoundCorner 25
+     TitleFontSize 30
+     TitleBorderColor #a80035
+     TitleBorderThickness 0.5
+     ParticipantPadding 50
+     LegendBackgroundColor #O_FEO_FEce
+     LegendBorderColor #a80035
+     LegendFontSize 15
+ }
+
+
+'Описание участников процесса
+actor User as User
+
+'Фронты
+participant AP as FE order 70 $Frontend
+
+'Бэкенд
+participant BE as O_BE order 70 $Backend
+
+participant "Внешняя АС" as Audit order 70 $ExternalSystem
+
+
+'Топики
+  box "\n<$kafka>\nkafka" #White
+    queue "TOPIC \nкакое-то очень \nдлинное название" as Q_SS order 220
+    queue "<size:11>Topic Name" as Q_OS order 60
+  end box
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'Описание процесса  
+hnote across: Здесь инфа о процессе
+
+
+  opt
+    User -> O_FE: Что-то сделал
+    O_FE -> User: Ответил
+    User -> O_FE: Что-то сделал
+
+    activate O_FE #FFBBBB
+    O_FE -> O_BE: Request
+
+    note left $Frontend
+      коммент для фронта 
+    end note
+
+
+    activate O_BE #005500
+    O_BE -> O_BE: Внутренняя логика работы сбор инфы 
+    O_BE -> O_BE !!: Что-удалил
+    deactivate O_BE
+
+    O_FE <-- O_BE : Response
+    deactivate O_FE
+  end
+
+
+alt тут можно написать что сделал
+  User -> O_FE : Что-то сделал
+  O_FE -> O_BE : Ответил
+  User -> O_FE : Что-то сделал
+else тут можно написать что сделал
+  User -> O_FE : Что-то другое сделал
+  O_FE -> User : Ответил
+  User -> O_FE : Что-то сделал
+end 
+
+O_BE -> Audit
+ note over Audit $Backend
+  коммент для бэка
+  --**Что нужно сделать**--
+  Описание действия
+  --**Что нужно сделать**--
+  Описание действия
+
+end note  
+
+O_BE -> O_BE : Что-то сделал
+note left $Backend
+  коммент для бэка
+end note
+
+O_BE -> Q_OS
+note over Audit $Backend
+  коммент для бэка
+end note  
+ 
+@enduml
