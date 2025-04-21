@@ -1,25 +1,23 @@
-# 📄 SA_docs | Documentation as Code
+# 📂 SA_docs – Репозиторий документации по системному анализу
 
-**Modern documentation system** treating docs like software code  
-**Version controlled** • **Collaborative** • **Automation friendly**
+![GitHub last commit](https://img.shields.io/github/last-commit/MikhailPrasolov/SA_docs?color=blue)
+![GitHub repo size](https://img.shields.io/github/repo-size/MikhailPrasolov/SA_docs)
 
-![Docs-as-Code](https://img.shields.io/badge/Philosophy-Docs_as_Code-blue) 
-![GitHub](https://img.shields.io/badge/Versioned_with-Git-orange) 
-![Markdown](https://img.shields.io/badge/Content-Markdown-green)
+Репозиторий содержит полезные материалы, шаблоны и гайды по **системному анализу**, бизнес-анализу и смежным IT-дисциплинам. Здесь вы найдете структурированные знания для практического применения.
 
-## 🚀 Key Features
+---
 
-✔ **Code-like workflow** - Branches, PRs, and reviews  
-✔ **Version tracking** - Full change history  
-✔ **CI/CD integration** - Automated builds & deploys  
-✔ **Plain text format** - Markdown, AsciiDoc, YAML  
-✔ **Collaboration friendly** - Team contributions  
+## 🔍 Содержание
 
-## 🛠 Tech Stack
+- **📄 Документы** – Шаблоны требований, спецификации, примеры ТЗ.
+- **📊 Диаграммы** – Примеры UML, BPMN, ER-диаграмм.
+- **📚 Гайды** – Методологии (Agile, Waterfall), нотации, чек-листы.
+- **🛠 Инструменты** – Подборки ПО для анализа (Jira, Confluence, draw.io и др.).
 
-```text
-├── 📝 Markdown/AsciiDoc - Content
-├── 🔍 MkDocs/Docusaurus - Static site gen
-├── ⚙️ GitHub Actions - CI/CD
-├── 🏷 Semantic versioning
-└── 🔗 Living documentation
+---
+
+## 🚀 Как использовать
+
+1. **Клонировать репозиторий**:
+   ```bash
+   git clone https://github.com/MikhailPrasolov/SA_docs.git
