@@ -1,0 +1,209 @@
+openapi: 3.0.1
+info:
+  title: API Documentation
+  version: 1.0.0
+  description: |
+    # Описание методов для работы
+
+    <details>
+    <summary title="Раскрывающийся элемент">Легенда для маппинга</summary>
+    | Название раcширения | раcшифровка                        |
+    | --------------------| -----------------------------------|
+    | x-db        |Источник данных из БД. Данные из БД микросервиса "Название Микросервиса" |
+    | x-query     |Источник данных из запросов в смежные сервисы |
+    | x-ui-req    |Источник заполнения для тела запроса - из поля на UI|
+    | x-db-upd    |Атрибут в БД, в который следует записать обновленное значение из запроса|
+    </details>  
+
+paths:
+  '/api/entities/{entityId}/process/{count}':
+    get:
+      tags:
+        - EntityOperations
+      parameters:
+        - name: entityId
+          schema:
+            $ref: '#/components/schemas/EntityId'
+          in: path
+          required: true
+        - name: count
+          schema:
+            type: integer
+          in: path
+          required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityCommentsDto'
+          description: Successful operation
+        '400':
+          $ref: '#/components/responses/ResponseError'
+      summary: Get entity comments
+
+  '/api/entities/{entityId}/process':
+    post:
+      tags:
+        - EntityOperations
+      parameters:
+        - name: entityId
+          schema:
+            $ref: '#/components/schemas/EntityId'
+          in: path
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentDto'
+        required: false
+      responses:
+        '200':
+          $ref: '#/components/responses/ResponseSuccess'
+        '400':
+          $ref: '#/components/responses/ResponseError'
+      summary: Add entity comment
+
+  '/api/entities/comments/{commentId}':
+    delete:
+      tags:
+        - EntityOperations
+      parameters:
+        - name: commentId
+          schema:
+            $ref: '#/components/schemas/CommentId'
+          in: path
+          required: true
+      responses:
+        '200':
+          content:
+            application/json: {}
+          description: Successfully deleted
+        '400':
+          $ref: '#/components/responses/ResponseError'
+      summary: Delete comment
+
+    patch:
+      tags:
+        - EntityOperations
+      parameters:
+        - name: commentId
+          schema:
+            $ref: '#/components/schemas/CommentId'
+          in: path
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentDto'
+        required: false
+      responses:
+        '200':
+          $ref: '#/components/responses/ResponseSuccess'
+        '400':
+          $ref: '#/components/responses/ResponseError'
+      summary: Update comment
+
+components:
+  schemas:
+    EntityId:
+      type: string
+      format: uuid
+      description: Entity unique identifier
+      example: '72198322-3416-4f55-9079-10b25f408909'
+      x-db: ENTITIES.entity_id
+
+    CommentId:
+      type: string
+      format: uuid
+      description: Comment unique identifier
+      example: '72198322-3416-4f55-9079-10b25f408909'
+      x-db: ENTITY_COMMENTS.comment_id
+
+    EntityCommentsDto:
+      type: object
+      properties:
+        comments:
+          type: array
+          items:
+            type: object
+            properties:
+              authorInfo:
+                type: object
+                properties:
+                  firstName:
+                    type: string
+                  middleName:
+                    type: string
+                  lastName:
+                    type: string
+                  employeeId:
+                    type: string
+              comment:
+                type: string
+                description: Comment text
+                example: 'Sample comment text'
+                x-db: ENTITY_COMMENTS.comment_text
+              timestamp:
+                type: string
+                format: date-time
+                example: '2023-04-02T14:20:44+05:30'
+                description: Comment creation timestamp with timezone
+                x-db: ENTITY_COMMENTS.created_at
+              commentId:
+                $ref: '#/components/schemas/CommentId'
+
+    CommentDto:
+      type: object
+      properties:
+        comment:
+          type: string
+          example: 'Updated comment text'
+          description: Comment content
+          x-db-upd: ENTITY_COMMENTS.comment_text
+
+    Error:
+      type: object
+      properties:
+        serviceName:
+          description: Service where error occurred
+          type: string
+          example: Core_Service
+        code:
+          description: Error code
+          type: string
+          example: VALIDATION_ERROR
+        httpStatusCode:
+          description: HTTP status code
+          type: integer
+          example: 400
+        userMessage:
+          description: User-friendly error message
+          type: string
+          example: Required field is missing
+        developerMessage:
+          description: Technical error details
+          type: string
+          example: See logs for details
+        internalErrors:
+          description: Error stack trace
+          type: array
+          items:
+            type: object
+
+  responses:
+    ResponseSuccess:
+      content:
+        application/json:
+          schema:
+            type: string
+            example: success
+      description: Operation completed successfully
+    ResponseError:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      description: Bad Request
