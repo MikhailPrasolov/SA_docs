@@ -21,3 +21,9 @@
 1. **Клонировать репозиторий**:
    ```bash
    git clone https://github.com/MikhailPrasolov/SA_docs.git
+
+---
+
+Автор: Прасолов Михаил
+
+Telegram: t.me/systemananalytics

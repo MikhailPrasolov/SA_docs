@@ -1,0 +1,130 @@
+////////////////////// СХЕМА БД ДЛЯ УПРАВЛЕНИЯ ПОЛЬЗОВАТЕЛЯМИ //////////////////////
+
+Project user_management_ms {
+  database_type: 'postgresql'
+}
+
+//// Перечисления ////
+
+Enum "user_status" {
+  active   [note: 'Учетная запись активна и может использоваться']
+  inactive [note: 'Учетная запись неактивна и не может использоваться']
+  pending  [note: 'Учетная запись ожидает активации']
+  blocked  [note: 'Учетная запись заблокирована по соображениям безопасности']
+  deleted  [note: 'Учетная запись удалена (мягкое удаление)']
+}
+
+Enum "role_type" {
+  administrator [note: 'Полные административные привилегии']
+  editor        [note: 'Может создавать и редактировать контент']
+  viewer        [note: 'Доступ только для чтения']
+  moderator     [note: 'Может модерировать пользовательский контент']
+  user          [note: 'Базовые пользовательские привилегии']
+}
+
+//// Таблицы пользователей и ролей ////
+
+Table "users" {
+  "id" int [pk, increment, not null, note: "Уникальный идентификатор пользователя"]
+  "username" varchar(50) [unique, not null, note: "Имя пользователя для входа"]
+  "email" varchar(255) [unique, not null, note: "Адрес электронной почты"]
+  "password_hash" varchar(255) [not null, note: "Хэш пароля"]
+  "first_name" varchar(100) [note: "Имя"]
+  "last_name" varchar(100) [note: "Фамилия"]
+  "status" user_status [default: 'pending', not null, note: "Статус учетной записи"]
+  "created_at" timestamp [default: `now()`, note: "Дата создания"]
+  "updated_at" timestamp [note: "Дата обновления"]
+  "last_login" timestamp [note: "Последний вход"]
+  "profile_picture" varchar(255) [note: "Ссылка на аватар"]
+  "is_email_verified" boolean [not null, default: false, note: "Подтверждение email"]
+
+  Indexes {
+    (email) [name: "idx_users_email"]
+    (username) [name: "idx_users_username"]
+  }
+
+  Note: "Пользователи системы"
+}
+
+Table "roles" {
+  "id" int [pk, increment, not null, note: "Уникальный идентификатор роли"]
+  "name" varchar(50) [unique, not null, note: "Название роли"]
+  "description" text [note: "Описание роли"]
+  "role_type" role_type [default: 'user', not null, note: "Тип роли"]
+
+  Indexes {
+    (name) [name: "idx_roles_name"]
+  }
+
+  Note: "Справочник ролей пользователей"
+}
+
+Table "user_roles" {
+  "user_id" int [pk, not null, note: "Идентификатор пользователя"]
+  "role_id" int [pk, not null, note: "Идентификатор роли"]
+  "assigned_at" timestamp [default: `now()`, note: "Дата назначения роли"]
+
+  Note: "Связь пользователей с ролями"
+}
+
+Table "permissions" {
+  "id" int [pk, increment, not null, note: "Идентификатор разрешения"]
+  "name" varchar(50) [unique, not null, note: "Название разрешения"]
+  "description" text [note: "Описание разрешения"]
+
+  Indexes {
+    (name) [name: "idx_permissions_name"]
+  }
+
+  Note: "Справочник разрешений"
+}
+
+Table "role_permissions" {
+  "role_id" int [pk, not null, note: "Идентификатор роли"]
+  "permission_id" int [pk, not null, note: "Идентификатор разрешения"]
+
+  Note: "Связь ролей с разрешениями"
+}
+
+Table "user_login_history" {
+  "id" int [pk, increment, not null, note: "Идентификатор попытки входа"]
+  "user_id" int [not null, note: "Пользователь"]
+  "login_time" timestamp [default: `now()`, note: "Дата входа"]
+  "ip_address" varchar(50) [note: "IP-адрес"]
+  "user_agent" text [note: "User-Agent"]
+  "successful" boolean [default: false, not null, note: "Был ли вход успешным"]
+
+  Note: "История входов пользователей"
+}
+
+Table "password_reset_tokens" {
+  "token" varchar(255) [pk, not null, note: "Токен сброса пароля"]
+  "user_id" int [not null, note: "Пользователь"]
+  "expiry_time" timestamp [not null, note: "Срок действия токена"]
+  "created_at" timestamp [default: `now()`, note: "Дата создания"]
+  "used" boolean [default: false, not null, note: "Использован ли токен"]
+
+  Note: "Токены сброса пароля"
+}
+
+Table "email_verification_tokens" {
+  "token" varchar(255) [pk, not null, note: "Токен подтверждения email"]
+  "user_id" int [not null, note: "Пользователь"]
+  "expiry_time" timestamp [not null, note: "Срок действия токена"]
+  "created_at" timestamp [default: `now()`, note: "Дата создания"]
+  "used" boolean [default: false, not null, note: "Использован ли токен"]
+
+  Note: "Токены подтверждения почты"
+}
+
+//// Связи ////
+
+Ref "fk_user_roles_user": "user_roles"."user_id" > "users"."id"
+Ref "fk_user_roles_role": "user_roles"."role_id" > "roles"."id"
+
+Ref "fk_role_permissions_role": "role_permissions"."role_id" > "roles"."id"
+Ref "fk_role_permissions_permission": "role_permissions"."permission_id" > "permissions"."id"
+
+Ref "fk_login_history_user": "user_login_history"."user_id" > "users"."id"
+Ref "fk_password_token_user": "password_reset_tokens"."user_id" > "users"."id"
+Ref "fk_email_token_user": "email_verification_tokens"."user_id" > "users"."id"

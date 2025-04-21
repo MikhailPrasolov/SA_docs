@@ -1,0 +1,85 @@
+@startuml Управление пользователями
+
+title Микросервис управления пользователями
+
+autonumber
+
+' === Цветовые константы ===
+!$Add="#CCFF99"
+!$Update="#FFFF99"
+!$Delete="#FFC0CB"
+!$Backend="#LightYellow"
+!$Frontend="#FFD700"
+!$ExternalSystem="#afdafc"
+
+' === Легенда ===
+legend top left
+| <size:20> Легенда </size>             |
+| <$Add>     Добавить                   |
+| <$Update>  Изменить                  |
+| <$Delete>  Удалить                   |
+| <$Frontend> Комментарий для фронта   |
+| <$Backend>  Комментарий для бэка     |
+| <$ExternalSystem> Внешняя система    |
+endlegend
+
+' === Стиль ===
+scale 0.9
+skinparam {
+    MaxMessageSize 140
+    RoundCorner 10
+    ParticipantFontSize 17
+    DatabaseBackgroundColor #e0f3f1/#a3ccc9
+    TitleFontSize 25
+    TitleBackgroundColor #FEEFEF
+    TitleBorderColor #a80035
+    ParticipantPadding 40
+}
+
+' === Участники ===
+actor "Пользователь" as User
+participant "Frontend\n(React/Vue)" as FE $Frontend
+participant "Backend\n(user-ms)" as BE $Backend
+database "PostgreSQL\n(users, roles, tokens)" as DB
+
+' === Основной процесс ===
+== Регистрация пользователя ==
+
+User -> FE : Вводит данные для регистрации
+FE -> BE : POST /api/users/register
+BE -> DB : INSERT INTO users
+note right of DB $Add
+  Создание новой записи пользователя  
+end note
+BE -> FE : 201 Created
+
+== Авторизация пользователя ==
+
+User -> FE : Вводит email + пароль
+FE -> BE : POST /api/auth/login
+BE -> DB : SELECT user by email
+BE -> DB : Проверка password_hash
+BE -> DB : INSERT INTO user_login_history
+BE -> FE : 200 OK + JWT
+
+== Изменение ролей пользователя ==
+
+User -> FE : Назначает роль пользователю
+FE -> BE : POST /api/users/{id}/roles
+BE -> DB : INSERT INTO user_roles
+note right of DB $Add
+  Присвоение роли пользователю  
+end note
+BE -> FE : 200 OK
+
+== Удаление пользователя ==
+
+User -> FE : Удаляет пользователя
+FE -> BE : DELETE /api/users/{id}
+BE -> DB : UPDATE users SET status='deleted'
+note right of DB $Delete
+  Мягкое удаление записи  
+end note
+BE -> FE : 204 No Content
+
+@enduml
