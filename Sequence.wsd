@@ -1,0 +1,129 @@
+@startuml Редактирование/Удаление сотрудника из команды потенциала
+
+autonumber
+
+title Редактирование/Удаление сотрудника из команды потенциала
+
+'Константы
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+!$Add="#CCFF99"
+!$Update="#FFFF99"
+!$Delete="#FFC0CB"
+!$Backend="#LightYellow"
+!$Frontend="#FFD700"
+!$ExternalSystem="#afdafc"
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' Легенда (если не нужна то закомментируйте)
+legend top left
+    | <size:20> Легенда </size>             |
+    | <$Add>  Добавить                      |
+    | <$Update>  Изменить                   |
+    | <$Delete>  Удалить                    |
+    | <$Backend> Комментарий для бекенда    |
+    | <$Frontend> Комментарий для фронтенда |
+    | <$ExternalSystem> Внешняя АС          |
+endlegend
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'Описание стиля диаграммы
+scale 0.85
+!include <cloudinsight/kafka>
+ skinparam {
+     MaxMessageSize 150
+     RoundCorner 10
+     ActorFontSize 20
+     ParticipantBackgroundColor #e0f3f1/#a3ccc9
+     ParticipantFontSize 17
+     QueueFontSize 10
+     QueueBackgroundColor #e0f3f1/#a3ccc9
+     DatabaseFontSize 20
+     DatabaseBackgroundColor #e0f3f1/#a3ccc9
+     BoundaryFontSize 20
+     ControlFontSize 20
+     EntityFontSize 20
+     TitleFontColor Black
+     TitleBackgroundColor #O_FEO_FEce
+     TitleBorderRoundCorner 25
+     TitleFontSize 30
+     TitleBorderColor #a80035
+     TitleBorderThickness 0.5
+     ParticipantPadding 50
+     LegendBackgroundColor #O_FEO_FEce
+     LegendBorderColor #a80035
+     LegendFontSize 15
+ }
+
+actor User as User
+participant OFFERSOURCE_AP as FE order 70 $Backend
+participant OFFERSOURCE_BE as O_BE order 70 $Frontend
+
+participant "Аудит" as Audit order 70 $ExternalSystem
+
+'Топики
+  box "\n<$kafka>\nkafka" #White
+'     queue "OPPORTUNITIES.\nOPPORTUNITY_PIPELINE.\nOPPORTUNITY_STATE" as Q_OS order 200
+'     queue "DEALS.DEAL_STATE" as Q_DS order 200
+'     queue "OPPORTUNITYSOURCES.\nKFUL.KFUL_OPPORTUNITY_STATE" as Q_KS order 210
+'     queue "OPPORTUNITYSOURCES.\nSALES.SALE_STATE" as Q_SS order 220
+    queue "<size:11>OFFERSOURCES.POTENTIALS.\nPOTENTIAL_STATE" as Q_OS order 60
+  end box
+
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'Описание процесса  
+hnote across: Чтение информации в карточке потенциала РД
+
+opt
+  User -> O_FE : Нажатие на "х" в области ввода комментария
+  O_FE -> User : Очистка области ввода комментария
+  User -> O_FE : Ввод комментария
+end
+
+note right
+  Комментарий создается в таблице
+  POTENTIAL_COMMENTS
+  созданная запись должна быть привязана
+  к потенциалу
+  --Формат даты--
+  Дата комментария записывается и хранится
+  в БД в нулевом меридиане
+  DATA TYPE potential_comments.comment_date =
+  timestamp without time zone
+  --Длина сообщения--
+  на уровне сохранения в БД текст
+  обрезается до 2000 количество знаков
+end note
+
+O_BE -> Audit
+ note over Audit $Backend
+  OFFERSOURCES_EMPLOYEE_UPDATE
+end note  
+
+O_BE -> O_BE : Обновление ролей сотрудника в команде потенциала
+note left
+  Для выбранного сотрудника в рамках команды данной потенциала
+  необходимо обновить таблицу potential_desk_team_members_roles
+end note
+
+O_BE -> Q_OS
+note over Audit $Backend
+  message: potentialState
+end note  
+
+O_BE -> FE : Передача ответа на запрос на изменение сотрудника в команде потенциала
+note right
+  patch /offersources-be/potentials/team-members/{objectId}
+end note
+
+
+O_BE -> O_BE : Удаление сотрудника из команды потенциала
+    note left
+        Необходимо удалить выбранную запись из таблицы potential_desk_team_members
+        и связанную запись в таблице potential_desk_team_members_roles
+    end note
+   
+    O_BE -> Q_OS
+    note over Audit $Backend
+        message: potentialState
+    end note
+ 
+@enduml
