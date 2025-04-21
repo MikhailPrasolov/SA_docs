@@ -23,4 +23,4 @@
 ├── ⚙️ GitHub Actions - CI/CD
 ├── 🏷 Semantic versioning
 └── 🔗 Living documentation
-└── 🔗 Living documentation
+└── 🔗 Living documentation1
