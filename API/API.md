@@ -76,7 +76,7 @@ DELETE /api/v1/users/{id}     # Удаление
 4. **Лимиты запросов**
 5. **Примеры для всех эндпоинтов**
 
-### Форматы:
+### Форматы
 
 ```markdown
 [Swagger](https://swagger.io/) | [OpenAPI](https://www.openapis.org/)

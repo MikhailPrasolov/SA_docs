@@ -13,17 +13,17 @@ info:
     | x-query     |Источник данных из запросов в смежные сервисы |
     | x-ui-req    |Источник заполнения для тела запроса - из поля на UI|
     | x-db-upd    |Атрибут в БД, в который следует записать обновленное значение из запроса|
-    </details>  
+    </details>
 
 paths:
-  '/api/entities/{entityId}/process/{count}':
+  "/api/entities/{entityId}/process/{count}":
     get:
       tags:
         - EntityOperations
       parameters:
         - name: entityId
           schema:
-            $ref: '#/components/schemas/EntityId'
+            $ref: "#/components/schemas/EntityId"
           in: path
           required: true
         - name: count
@@ -32,56 +32,56 @@ paths:
           in: path
           required: true
       responses:
-        '200':
+        "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EntityCommentsDto'
+                $ref: "#/components/schemas/EntityCommentsDto"
           description: Successful operation
-        '400':
-          $ref: '#/components/responses/ResponseError'
+        "400":
+          $ref: "#/components/responses/ResponseError"
       summary: Get entity comments
 
-  '/api/entities/{entityId}/process':
+  "/api/entities/{entityId}/process":
     post:
       tags:
         - EntityOperations
       parameters:
         - name: entityId
           schema:
-            $ref: '#/components/schemas/EntityId'
+            $ref: "#/components/schemas/EntityId"
           in: path
           required: true
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CommentDto'
+              $ref: "#/components/schemas/CommentDto"
         required: false
       responses:
-        '200':
-          $ref: '#/components/responses/ResponseSuccess'
-        '400':
-          $ref: '#/components/responses/ResponseError'
+        "200":
+          $ref: "#/components/responses/ResponseSuccess"
+        "400":
+          $ref: "#/components/responses/ResponseError"
       summary: Add entity comment
 
-  '/api/entities/comments/{commentId}':
+  "/api/entities/comments/{commentId}":
     delete:
       tags:
         - EntityOperations
       parameters:
         - name: commentId
           schema:
-            $ref: '#/components/schemas/CommentId'
+            $ref: "#/components/schemas/CommentId"
           in: path
           required: true
       responses:
-        '200':
+        "200":
           content:
             application/json: {}
           description: Successfully deleted
-        '400':
-          $ref: '#/components/responses/ResponseError'
+        "400":
+          $ref: "#/components/responses/ResponseError"
       summary: Delete comment
 
     patch:
@@ -90,20 +90,20 @@ paths:
       parameters:
         - name: commentId
           schema:
-            $ref: '#/components/schemas/CommentId'
+            $ref: "#/components/schemas/CommentId"
           in: path
           required: true
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CommentDto'
+              $ref: "#/components/schemas/CommentDto"
         required: false
       responses:
-        '200':
-          $ref: '#/components/responses/ResponseSuccess'
-        '400':
-          $ref: '#/components/responses/ResponseError'
+        "200":
+          $ref: "#/components/responses/ResponseSuccess"
+        "400":
+          $ref: "#/components/responses/ResponseError"
       summary: Update comment
 
 components:
@@ -112,14 +112,14 @@ components:
       type: string
       format: uuid
       description: Entity unique identifier
-      example: '72198322-3416-4f55-9079-10b25f408909'
+      example: "72198322-3416-4f55-9079-10b25f408909"
       x-db: ENTITIES.entity_id
 
     CommentId:
       type: string
       format: uuid
       description: Comment unique identifier
-      example: '72198322-3416-4f55-9079-10b25f408909'
+      example: "72198322-3416-4f55-9079-10b25f408909"
       x-db: ENTITY_COMMENTS.comment_id
 
     EntityCommentsDto:
@@ -144,23 +144,23 @@ components:
               comment:
                 type: string
                 description: Comment text
-                example: 'Sample comment text'
+                example: "Sample comment text"
                 x-db: ENTITY_COMMENTS.comment_text
               timestamp:
                 type: string
                 format: date-time
-                example: '2023-04-02T14:20:44+05:30'
+                example: "2023-04-02T14:20:44+05:30"
                 description: Comment creation timestamp with timezone
                 x-db: ENTITY_COMMENTS.created_at
               commentId:
-                $ref: '#/components/schemas/CommentId'
+                $ref: "#/components/schemas/CommentId"
 
     CommentDto:
       type: object
       properties:
         comment:
           type: string
-          example: 'Updated comment text'
+          example: "Updated comment text"
           description: Comment content
           x-db-upd: ENTITY_COMMENTS.comment_text
 
@@ -205,5 +205,5 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            $ref: "#/components/schemas/Error"
       description: Bad Request
