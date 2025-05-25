@@ -13,12 +13,6 @@
 
 SA_docs/
 ├── 1. API/
-│   ├── Мои примеры/
-│   │   ├── Мониторинг цен find-all.yaml
-│   │   ├── api_new_monitoring_history_collector_find_all.yaml
-│   │   ├── OPENAPI POST 3.0.3 find-all.yaml
-│   │   ├── SWAGGER 2.0 api_pricing.yaml
-│   │   └── SWAGGER 2.0 POST find-all.yaml
 │   ├── Шаблон OPENAPI 3.0.1.yaml
 │   ├── Шаблон Swagger 2.0.yaml
 │   └── API.md
@@ -41,7 +35,6 @@ SA_docs/
 | № | Раздел | Файл / директория | Назначение |
 |---|--------|-------------------|------------|
 | 1 | **API** | [`1. API`](https://github.com/MikhailPrasolov/SA_docs/tree/main/API) | Всё про API‑контракты (Swagger/OpenAPI) |
-| &nbsp; | &nbsp;Мои примеры | [`Мои примеры`](https://github.com/MikhailPrasolov/SA_docs/tree/main/API/%D0%9C%D0%BE%D0%B8%20%D0%BF%D1%80%D0%B8%D0%BC%D0%B5%D1%80%D1%8B) | Реальные спецификации, которые можно смотреть и переиспользовать |
 | &nbsp; | &nbsp;Основной гайд | [`API.md`](https://github.com/MikhailPrasolov/SA_docs/blob/main/API/API.md) | Рекомендации и best‑practice по описанию REST |
 | &nbsp; | &nbsp;Шаблон OpenAPI 3.0.1 | [`Шаблон OPENAPI 3.0.1.yaml`](https://github.com/MikhailPrasolov/SA_docs/blob/main/API/%D0%A8%D0%B0%D0%B1%D0%BB%D0%BE%D0%BD%20OPENAPI%203.0.1.yaml) | Пустой каркас под новый контракт |
 | &nbsp; | &nbsp;Шаблон Swagger 2.0 | [`Шаблон Swagger 2.0.yaml`](https://github.com/MikhailPrasolov/SA_docs/blob/main/API/%D0%A8%D0%B0%D0%B1%D0%BB%D0%BE%D0%BD%20Swagger%202.0.yaml) | Аналогичный каркас под Swagger 2 |
