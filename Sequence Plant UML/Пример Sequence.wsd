@@ -42,6 +42,8 @@ participant "Frontend\n(React/Vue)" as FE $Frontend
 participant "Backend\n(user-ms)" as BE $Backend
 database "PostgreSQL\n(users, roles, tokens)" as DB
 
+box ""
+
 ' === Основной процесс ===
 == Регистрация пользователя ==
 
