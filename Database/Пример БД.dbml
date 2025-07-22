@@ -53,7 +53,7 @@ Table "roles" {
   "role_type" role_type [default: 'user', not null, note: "Тип роли"]
 
   Indexes {
-    (name) [name: "idx_roles_name"]
+    id [pk, name: "PK_ROLES#ID"]
   }
 
   Note: "Справочник ролей пользователей"
