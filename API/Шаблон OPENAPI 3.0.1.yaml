@@ -24,12 +24,12 @@ paths:
         - name: entityId
           schema:
             $ref: "#/components/schemas/EntityId"
-          in: path
+          in: query
           required: true
         - name: count
           schema:
             type: integer
-          in: path
+          in: query
           required: true
       responses:
         "200":
@@ -50,7 +50,7 @@ paths:
         - name: entityId
           schema:
             $ref: "#/components/schemas/EntityId"
-          in: path
+          in: query
           required: true
       requestBody:
         content:
@@ -73,7 +73,7 @@ paths:
         - name: commentId
           schema:
             $ref: "#/components/schemas/CommentId"
-          in: path
+          in: query
           required: true
       responses:
         "200":
@@ -91,7 +91,7 @@ paths:
         - name: commentId
           schema:
             $ref: "#/components/schemas/CommentId"
-          in: path
+          in: query
           required: true
       requestBody:
         content:
