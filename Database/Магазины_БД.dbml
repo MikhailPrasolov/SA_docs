@@ -1,0 +1,185 @@
+////////////////////// СХЕМА БД ДЛЯ УПРАВЛЕНИЯ СЕТЬЮ МАГАЗИНОВ //////////////////////
+// Нормализация до 3NF выполнена на основе исходной денормализованной таблицы sales
+
+Project store_management {
+  database_type: 'PostgreSQL'
+  Note: '''
+  # Система управления сетью магазинов
+  
+  База данных для управления продажами, товарами, магазинами и кассирами.
+  Схема нормализована до 3NF для устранения избыточности данных и аномалий обновления.
+  
+  ## Основные возможности:
+  - Учет продаж с детализацией по товарам
+  - Управление ценами по магазинам
+  - Учет кассиров и их активности
+  - Аналитика продаж по периодам
+  '''
+}
+
+//// Перечисления ////
+
+Enum sale_status {
+  completed   [note: 'Продажа завершена']
+  cancelled  [note: 'Продажа отменена']
+  refunded   [note: 'Продажа возвращена']
+}
+
+//// Таблицы магазинов и продаж ////
+
+Table stores {
+  store_id int [pk, increment, not null, note: 'Уникальный идентификатор магазина']
+  store_name varchar(255) [not null, note: 'Название магазина']
+  store_address text [not null, note: 'Адрес магазина']
+  created_at timestamp [default: `now()`, note: 'Дата создания записи']
+  updated_at timestamp [note: 'Дата обновления записи']
+
+  indexes {
+    (store_name) [name: 'idx_stores_name']
+  }
+
+  Note: 'Справочник магазинов сети'
+}
+
+Table categories {
+  category_id int [pk, increment, not null, note: 'Уникальный идентификатор категории']
+  category_name varchar(255) [unique, not null, note: 'Название категории товаров']
+  description text [note: 'Описание категории']
+
+  indexes {
+    (category_name) [name: 'idx_categories_name']
+  }
+
+  Note: 'Справочник категорий товаров'
+}
+
+Table suppliers {
+  supplier_id int [pk, increment, not null, note: 'Уникальный идентификатор поставщика']
+  supplier_name varchar(255) [unique, not null, note: 'Название поставщика']
+  contact_info text [note: 'Контактная информация поставщика']
+
+  indexes {
+    (supplier_name) [name: 'idx_suppliers_name']
+  }
+
+  Note: 'Справочник поставщиков'
+}
+
+Table products {
+  product_id int [pk, increment, not null, note: 'Уникальный идентификатор товара']
+  product_name varchar(255) [not null, note: 'Название товара']
+  category_id int [not null, note: 'Категория товара']
+  supplier_id int [not null, note: 'Поставщик товара']
+  base_price decimal(10,2) [not null, note: 'Базовая цена товара']
+  created_at timestamp [default: `now()`, note: 'Дата создания записи']
+  updated_at timestamp [note: 'Дата обновления записи']
+
+  indexes {
+    (product_name) [name: 'idx_products_name']
+    (category_id) [name: 'idx_products_category']
+    (supplier_id) [name: 'idx_products_supplier']
+  }
+
+  Note: 'Справочник товаров'
+}
+
+Table cashiers {
+  cashier_id int [pk, increment, not null, note: 'Уникальный идентификатор кассира']
+  cashier_name varchar(255) [not null, note: 'ФИО кассира']
+  store_id int [not null, note: 'Магазин, в котором работает кассир']
+  is_active boolean [default: true, not null, note: 'Статус активности кассира']
+  created_at timestamp [default: `now()`, note: 'Дата создания записи']
+
+  indexes {
+    (cashier_name) [name: 'idx_cashiers_name']
+    (store_id) [name: 'idx_cashiers_store']
+  }
+
+  Note: 'Справочник кассиров'
+}
+
+Table sales {
+  sale_id int [pk, increment, not null, note: 'Уникальный идентификатор продажи']
+  sale_date timestamp [not null, note: 'Дата и время продажи']
+  store_id int [not null, note: 'Магазин, в котором совершена продажа']
+  cashier_id int [not null, note: 'Кассир, который провел продажу']
+  status sale_status [default: 'completed', not null, note: 'Статус продажи']
+  total_amount decimal(10,2) [not null, note: 'Общая сумма продажи']
+
+  indexes {
+    (sale_date) [name: 'idx_sales_date']
+    (store_id) [name: 'idx_sales_store']
+    (cashier_id) [name: 'idx_sales_cashier']
+    (status) [name: 'idx_sales_status']
+  }
+
+  Note: 'Основная таблица продаж'
+}
+
+Table sale_items {
+  sale_item_id int [pk, increment, not null, note: 'Уникальный идентификатор позиции продажи']
+  sale_id int [not null, note: 'Идентификатор продажи']
+  product_id int [not null, note: 'Товар']
+  quantity int [not null, note: 'Количество товара']
+  unit_price decimal(10,2) [not null, note: 'Цена за единицу на момент продажи']
+  line_total decimal(10,2) [not null, note: 'Сумма по позиции (quantity * unit_price)']
+
+  indexes {
+    (sale_id) [name: 'idx_sale_items_sale']
+    (product_id) [name: 'idx_sale_items_product']
+  }
+
+  Note: 'Позиции продаж (детализация по товарам)'
+}
+
+Table store_prices {
+  store_price_id int [pk, increment, not null, note: 'Уникальный идентификатор записи']
+  store_id int [not null, note: 'Магазин']
+  product_id int [not null, note: 'Товар']
+  price decimal(10,2) [not null, note: 'Цена товара в конкретном магазине']
+  effective_date timestamp [default: `now()`, not null, note: 'Дата вступления цены в силу']
+  is_active boolean [default: true, not null, note: 'Актуальность цены']
+
+  indexes {
+    (store_id, product_id) [unique, name: 'idx_store_prices_unique']
+    (store_id) [name: 'idx_store_prices_store']
+    (product_id) [name: 'idx_store_prices_product']
+  }
+
+  Note: 'Цены товаров по магазинам (позволяет иметь разные цены в разных магазинах)'
+}
+
+//// Группировка таблиц для лучшей организации ////
+
+TableGroup reference_data {
+  stores
+  categories
+  suppliers
+  products
+  cashiers
+}
+
+TableGroup sales_data {
+  sales
+  sale_items
+  store_prices
+}
+
+//// Связи между таблицами ////
+
+// Связи для справочных данных
+Ref: products.category_id > categories.category_id
+Ref: products.supplier_id > suppliers.supplier_id
+Ref: cashiers.store_id > stores.store_id
+
+// Связи для данных о продажах
+Ref: sales.store_id > stores.store_id
+Ref: sales.cashier_id > cashiers.cashier_id
+Ref: sale_items.sale_id > sales.sale_id
+Ref: sale_items.product_id > products.product_id
+Ref: store_prices.store_id > stores.store_id
+Ref: store_prices.product_id > products.product_id
+
+// Примечания для диаграммы
+// Схема нормализована до 3NF с устранением избыточности данных
+// и транзитивных зависимостей
