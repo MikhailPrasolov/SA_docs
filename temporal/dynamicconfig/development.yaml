@@ -1,0 +1,51 @@
+# Динамическая конфигурация для Temporal в режиме разработки
+# Этот файл позволяет настроить поведение Temporal сервера
+
+frontend.enableClientVersionCheck:
+  - value: false
+    constraints: {}
+
+frontend.enableTokenNamespaceEnforcement:
+  - value: false
+    constraints: {}
+
+history.persistenceMaxQPS:
+  - value: 3000
+    constraints: {}
+
+system.advancedVisibilityWritingMode:
+  - value: "on"
+    constraints: {}
+
+system.enableActivityEagerExecution:
+  - value: true
+    constraints: {}
+
+system.enableDebugMode:
+  - value: true
+    constraints: {}
+
+worker.enableLocalActivities:
+  - value: true
+    constraints: {}
+
+# Настройки для разработки - более либеральные лимиты
+limit.maxIDLength:
+  - value: 255
+    constraints: {}
+
+history.historyMgrNumConns:
+  - value: 10
+    constraints: {}
+
+frontend.rps:
+  - value: 1200
+    constraints: {}
+
+frontend.persistenceMaxQPS:
+  - value: 9000
+    constraints: {}
+
+frontend.throttledLogRPS:
+  - value: 20
+    constraints: {}

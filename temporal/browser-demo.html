@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temporal OMS Demo - Браузерная версия</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .demo-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .workflow-step {
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 4px solid #3498db;
+            background: white;
+            transition: all 0.3s ease;
+        }
+        .workflow-step.active {
+            border-left-color: #27ae60;
+            background: #e8f5e8;
+        }
+        .workflow-step.error {
+            border-left-color: #e74c3c;
+            background: #fde8e6;
+        }
+        .workflow-step.cancelled {
+            border-left-color: #f39c12;
+            background: #fef5e7;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status-created { background: #3498db; color: white; }
+        .status-inventory { background: #9b59b6; color: white; }
+        .status-payment { background: #f39c12; color: white; }
+        .status-preparing { background: #d35400; color: white; }
+        .status-shipped { background: #27ae60; color: white; }
+        .status-delivered { background: #16a085; color: white; }
+        .status-cancelled { background: #e74c3c; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Temporal OMS Demo - Демонстрация в браузере</h1>
+        
+        <div class="demo-section">
+            <h2>📦 Процесс обработки заказа (Workflow)</h2>
+            <div id="workflow-steps">
+                <div class="workflow-step" id="step-created">
+                    <strong>1. СОЗДАНИЕ ЗАКАЗА</strong> - Заказ создан и ожидает обработки
+                </div>
+                <div class="workflow-step" id="step-inventory">
+                    <strong>2. ПРОВЕРКА ЗАПАСОВ</strong> - Проверка наличия товаров на складе
+                </div>
+                <div class="workflow-step" id="step-payment">
+                    <strong>3. ОБРАБОТКА ПЛАТЕЖА</strong> - Валидация и обработка платежной информации
+                </div>
+                <div class="workflow-step" id="step-preparing">
+                    <strong>4. ПОДГОТОВКА К ОТПРАВКЕ</strong> - Сборка и упаковка заказа
+                </div>
+                <div class="workflow-step" id="step-shipped">
+                    <strong>5. ОТПРАВКА ЗАКАЗА</strong> - Передача в службу доставки
+                </div>
+                <div class="workflow-step" id="step-delivered">
+                    <strong>6. ДОСТАВКА</strong> - Заказ доставлен клиенту
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>🎮 Управление демо</h2>
+            <button onclick="startWorkflow()">🚀 Запустить успешный заказ</button>
+            <button onclick="startWorkflowWithCancel()">🛑 Запустить с отменой</button>
+            <button onclick="resetDemo()">🔄 Сбросить демо</button>
+            
+            <div id="current-status" class="status status-created">
+                Текущий статус: СОЗДАН
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>📝 Лог выполнения (Activity функции)</h2>
+            <div id="log" class="log"></div>
+        </div>
+
+        <div class="demo-section">
+            <h2>💡 Концепции Temporal</h2>
+            <ul>
+                <li><strong>Workflow</strong> - Долгоживущий бизнес-процесс (обработка заказа)</li>
+                <li><strong>Activity</strong> - Отдельные бизнес-операции (проверка запасов, платеж и т.д.)</li>
+                <li><strong>Надежность</strong> - Продолжение выполнения после "сбоев"</li>
+                <li><strong>Отслеживаемость</strong> - Полная история выполнения</li>
+                <li><strong>Сигналы</strong> - Взаимодействие с запущенным workflow (отмена)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let currentWorkflow = null;
+        let workflowSteps = [];
+        const logElement = document.getElementById('log');
+        const statusElement = document.getElementById('current-status');
+
+        // Имитация Activity функций
+        const activities = {
+            async checkInventory(items) {
+                await delay(1000);
+                log('🔍 Activity: Проверка запасов...');
+                await delay(500);
+                return { available: true, unavailableItems: [] };
+            },
+
+            async processPayment(paymentInfo, amount) {
+                await delay(800);
+                log('💳 Activity: Обработка платежа...');
+                await delay(600);
+                return { success: true, transactionId: 'TXN_' + Date.now() };
+            },
+
+            async prepareForShipment(orderId, items) {
+                await delay(600);
+                log('📦 Activity: Подготовка к отправке...');
+                await delay(400);
+                return { ready: true, packageId: 'PKG_' + orderId };
+            },
+
+            async shipOrder(orderId, packageId, address) {
+                await delay(700);
+                log('🚚 Activity: Отправка заказа...');
+                await delay(500);
+                return { 
+                    shipped: true, 
+                    trackingNumber: 'TRK_' + Math.random().toString(36).substr(2, 9).toUpperCase()
+                };
+            },
+
+            async notifyCustomer(email, message, orderId) {
+                await delay(300);
+                log('📧 Activity: Уведомление клиента: ' + message);
+            },
+
+            async cancelOrder(orderId, reason) {
+                await delay(500);
+                log('🛑 Activity: Отмена заказа: ' + reason);
+                return { cancelled: true, refundAmount: Math.random() * 100 + 50 };
+            }
+        };
+
+        // Workflow процесса заказа
+        async function orderWorkflow(order, shouldCancel = false) {
+            log('🎬 Workflow: Запуск обработки заказа ' + order.id);
+            updateStatus('CREATED');
+            activateStep('step-created');
+
+            try {
+                // Шаг 1: Проверка запасов
+                log('📦 Workflow: Проверка запасов...');
+                const inventoryResult = await activities.checkInventory(order.items);
+                if (!inventoryResult.available) {
+                    throw new Error('Товары недоступны');
+                }
+                updateStatus('INVENTORY_CHECKED');
+                activateStep('step-inventory');
+
+                // Имитация отмены
+                if (shouldCancel) {
+                    setTimeout(() => {
+                        log('🛑 Signal: Получен сигнал отмены от клиента');
+                        currentWorkflow.cancelReason = 'Клиент передумал';
+                    }, 2000);
+                }
+
+                if (currentWorkflow.cancelReason) {
+                    return await handleCancellation(order, currentWorkflow.cancelReason);
+                }
+
+                // Шаг 2: Обработка платежа
+                log('💰 Workflow: Обработка платежа...');
+                const paymentResult = await activities.processPayment(order.payment, order.totalAmount);
+                if (!paymentResult.success) {
+                    throw new Error('Ошибка обработки платежа');
+                }
+                updateStatus('PAYMENT_PROCESSED');
+                activateStep('step-payment');
+
+                if (currentWorkflow.cancelReason) {
+                    return await handleCancellation(order, currentWorkflow.cancelReason);
+                }
+
+                // Шаг 3: Подготовка к отправке
+                log('📦 Workflow: Подготовка к отправке...');
+                const preparationResult = await activities.prepareForShipment(order.id, order.items);
+                updateStatus('PREPARING_FOR_SHIPMENT');
+                activateStep('step-preparing');
+
+                if (currentWorkflow.cancelReason) {
+                    return await handleCancellation(order, currentWorkflow.cancelReason);
+                }
+
+                // Шаг 4: Отправка заказа
+                log('🚚 Workflow: Отправка заказа...');
+                const shippingResult = await activities.shipOrder(order.id, preparationResult.packageId, order.customer.address);
+                updateStatus('SHIPPED');
+                activateStep('step-shipped');
+
+                // Шаг 5: Доставка
+                log('🎯 Workflow: Доставка заказа...');
+                await delay(1000);
+                await activities.notifyCustomer(order.customer.email, 'Заказ доставлен!', order.id);
+                updateStatus('DELIVERED');
+                activateStep('step-delivered');
+
+                log('✅ Workflow: Заказ успешно обработан!');
+                return {
+                    success: true,
+                    orderId: order.id,
+                    status: 'DELIVERED',
+                    trackingNumber: shippingResult.trackingNumber
+                };
+
+            } catch (error) {
+                log('❌ Workflow: Ошибка: ' + error.message);
+                updateStatus('CANCELLED');
+                markStepError();
+                return {
+                    success: false,
+                    orderId: order.id,
+                    status: 'CANCELLED',
+                    error: error.message
+                };
+            }
+        }
+
+        async function handleCancellation(order, reason) {
+            log('🛑 Workflow: Обработка отмены...');
+            const cancellationResult = await activities.cancelOrder(order.id, reason);
+            await activities.notifyCustomer(order.customer.email, 'Заказ отменен: ' + reason, order.id);
+            updateStatus('CANCELLED');
+            markStepCancelled();
+            return {
+                success: false,
+                orderId: order.id,
+                status: 'CANCELLED',
+                reason: reason,
+                refundAmount: cancellationResult.refundAmount
+            };
+        }
+
+        // Вспомогательные функции
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function updateStatus(status) {
+            const statusText = {
+                'CREATED': 'СОЗДАН',
+                'INVENTORY_CHECKED': 'ЗАПАСЫ ПРОВЕРЕНЫ',
+                'PAYMENT_PROCESSED': 'ПЛАТЕЖ ОБРАБОТАН',
+                'PREPARING_FOR_SHIPMENT': 'ПОДГОТОВКА К ОТПРАВКЕ',
+                'SHIPPED': 'ОТПРАВЛЕН',
+                'DELIVERED': 'ДОСТАВЛЕН',
+                'CANCELLED': 'ОТМЕНЕН'
+            };
+
+            statusElement.textContent = `Текущий статус: ${statusText[status]}`;
+            statusElement.className = `status status-${status.toLowerCase()}`;
+        }
+
+        function activateStep(stepId) {
+            document.querySelectorAll('.workflow-step').forEach(step => {
+                step.classList.remove('active', 'error', 'cancelled');
+            });
+            document.getElementById(stepId).classList.add('active');
+        }
+
+        function markStepError() {
+            document.querySelectorAll('.workflow-step.active').forEach(step => {
+                step.classList.remove('active');
+                step.classList.add('error');
+            });
+        }
+
+        function markStepCancelled() {
+            document.querySelectorAll('.workflow-step.active').forEach(step => {
+                step.classList.remove('active');
+                step.classList.add('cancelled');
+            });
+        }
+
+        // Функции управления демо
+        function startWorkflow() {
+            resetDemo();
+            const order = {
+                id: 'ORD_' + Date.now(),
+                customer: { name: 'Иван Петров', email: 'ivan@example.com' },
+                items: [{ product: 'Смартфон', quantity: 1, price: 50000 }],
+                totalAmount: 50000,
+                payment: { method: 'credit_card' }
+            };
+            
+            currentWorkflow = { cancelReason: null };
+            orderWorkflow(order, false).then(result => {
+                log('🎉 Результат: ' + JSON.stringify(result, null, 2));
+            });
+        }
+
+        function startWorkflowWithCancel() {
+            resetDemo();
+            const order = {
+                id: 'ORD_' + Date.now(),
+                customer: { name: 'Мария Сидорова', email: 'maria@example.com' },
+                items: [{ product: 'Ноутбук', quantity: 1, price: 80000 }],
+                totalAmount: 80000,
+                payment: { method: 'credit_card' }
+            };
+            
+            currentWorkflow = { cancelReason: null };
+            orderWorkflow(order, true).then(result => {
+                log('🎉 Результат: ' + JSON.stringify(result, null, 2));
+            });
+        }
+
+        function resetDemo() {
+            logElement.innerHTML = '';
+            document.querySelectorAll('.workflow-step').forEach(step => {
+                step.classList.remove('active', 'error', 'cancelled');
+            });
+            updateStatus('CREATED');
+            currentWorkflow = null;
+            log('🔄 Демо сброшено. Готово к запуску нового workflow.');
+        }
+
+        // Инициализация
+        log('🌐 Temporal OMS Demo загружен. Нажмите кнопку для запуска workflow.');
+    </script>
+</body>
+</html>

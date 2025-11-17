@@ -1,0 +1,35 @@
+{
+  "name": "temporal-oms-demo",
+  "version": "1.0.0",
+  "description": "Демо-проект Temporal для системы управления заказами (OMS)",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "worker": "ts-node src/worker/order-worker.ts",
+    "client": "ts-node src/client/order-client.ts",
+    "dev:worker": "nodemon --exec ts-node src/worker/order-worker.ts",
+    "dev:client": "nodemon --exec ts-node src/client/order-client.ts",
+    "start": "npm run worker"
+  },
+  "keywords": [
+    "temporal",
+    "oms",
+    "workflow",
+    "order-management"
+  ],
+  "author": "SA Team",
+  "license": "MIT",
+  "dependencies": {
+    "@temporalio/client": "^1.9.3",
+    "@temporalio/worker": "^1.9.3",
+    "@temporalio/workflow": "^1.9.3",
+    "@temporalio/activity": "^1.9.3",
+    "nanoid": "^5.0.6"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0",
+    "ts-node": "^10.9.0",
+    "nodemon": "^3.0.2"
+  }
+}
