@@ -148,9 +148,13 @@ export async function orderWorkflow(order: Order): Promise<OrderResult> {
     console.log(`[Workflow] ${result.message}`);
 
     // Шаг 5: Уведомление клиента об отправке
+    const deliveryDate = shippingResult.estimatedDelivery ?
+      new Date(shippingResult.estimatedDelivery).toLocaleDateString('ru-RU') :
+      'не указана';
+    
     await notifyCustomer(
       order.customer.email,
-      `Ваш заказ ${order.orderId} отправлен! Трек-номер: ${shippingResult.trackingNumber}. Ожидаемая доставка: ${shippingResult.estimatedDelivery?.toLocaleDateString('ru-RU')}`,
+      `Ваш заказ ${order.orderId} отправлен! Трек-номер: ${shippingResult.trackingNumber}. Ожидаемая доставка: ${deliveryDate}`,
       order.orderId
     );
 

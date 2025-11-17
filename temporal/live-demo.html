@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temporal OMS Demo - Live Monitoring</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            min-height: calc(100vh - 20px);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            height: calc(100vh - 200px);
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+        }
+
+        .panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            min-height: 0; /* Для корректной работы flex внутри */
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 768px) {
+            .panel {
+                padding: 15px;
+            }
+        }
+
+        .panel h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .workflow-status {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .workflow-status.completed {
+            border-left-color: #27ae60;
+        }
+
+        .workflow-status.error {
+            border-left-color: #e74c3c;
+        }
+
+        .workflow-status.running {
+            border-left-color: #f39c12;
+        }
+
+        .workflow-status.cancelled {
+            border-left-color: #95a5a6;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .status-created { background: #3498db; color: white; }
+        .status-inventory { background: #9b59b6; color: white; }
+        .status-payment { background: #f39c12; color: white; }
+        .status-preparing { background: #d35400; color: white; }
+        .status-shipped { background: #27ae60; color: white; }
+        .status-delivered { background: #2ecc71; color: white; }
+        .status-cancelled { background: #95a5a6; color: white; }
+
+        .log-container {
+            background: #2c3e50;
+            color: #ecf0f1;
+            border-radius: 8px;
+            padding: 15px;
+            height: 500px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            line-height: 1.4;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .log-scrollable {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 100%;
+        }
+
+        .log-scrollable::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .log-scrollable::-webkit-scrollbar-track {
+            background: #34495e;
+            border-radius: 4px;
+        }
+
+        .log-scrollable::-webkit-scrollbar-thumb {
+            background: #3498db;
+            border-radius: 4px;
+        }
+
+        .log-scrollable::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
+
+        @media (max-width: 768px) {
+            .log-container {
+                height: 300px;
+                font-size: 0.8em;
+            }
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .log-entry.info { background: rgba(52, 152, 219, 0.1); }
+        .log-entry.warn { background: rgba(243, 156, 18, 0.1); }
+        .log-entry.error { background: rgba(231, 76, 60, 0.1); }
+        .log-entry.success { background: rgba(46, 204, 113, 0.1); }
+
+        .timestamp {
+            color: #bdc3c7;
+            font-size: 0.8em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            button {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        .btn-start {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-start:hover {
+            background: #219a52;
+        }
+
+        .btn-cancel {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #c0392b;
+        }
+
+        .btn-clear {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-clear:hover {
+            background: #7f8c8d;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .workflow-progress {
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            transition: width 0.5s ease;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            color: #7f8c8d;
+        }
+
+        .activity-list {
+            list-style: none;
+        }
+
+        .activity-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .activity-item.completed {
+            border-left-color: #27ae60;
+            background: #f8fff9;
+        }
+
+        .activity-item.running {
+            border-left-color: #f39c12;
+            background: #fffbf0;
+        }
+
+        .activity-name {
+            flex: 1;
+            font-weight: bold;
+        }
+
+        .activity-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+        }
+
+        .status-pending { background: #bdc3c7; color: white; }
+        .status-running { background: #f39c12; color: white; }
+        .status-completed { background: #27ae60; color: white; }
+        .status-failed { background: #e74c3c; color: white; }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Temporal OMS Demo - Live Monitoring</h1>
+            <p>Визуализация workflow процесса заказа в реальном времени</p>
+        </div>
+
+        <div class="dashboard">
+            <div class="panel">
+                <h2>📊 Статус Workflow</h2>
+                <div id="workflowStatus" class="workflow-status">
+                    <div class="workflow-info">
+                        <strong>ID:</strong> <span id="workflowId">-</span>
+                        <span id="statusBadge" class="status-badge status-created">CREATED</span>
+                    </div>
+                    <div class="workflow-progress">
+                        <div class="progress-bar">
+                            <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-steps">
+                            <span>Создан</span>
+                            <span>Запасы</span>
+                            <span>Платеж</span>
+                            <span>Подготовка</span>
+                            <span>Отправка</span>
+                            <span>Доставка</span>
+                        </div>
+                    </div>
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalOrders">0</div>
+                            <div class="stat-label">Всего заказов</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="successfulOrders">0</div>
+                            <div class="stat-label">Успешных</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="cancelledOrders">0</div>
+                            <div class="stat-label">Отмененных</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>🔧 Activity Функции</h3>
+                <ul id="activityList" class="activity-list">
+                    <li class="activity-item">
+                        <span class="activity-name">Проверка запасов</span>
+                        <span class="activity-status status-pending">Ожидание</span>
+                    </li>
+                    <li class="activity-item">
+                        <span class="activity-name">Обработка платежа</span>
+                        <span class="activity-status status-pending">Ожидание</span>
+                    </li>
+                    <li class="activity-item">
+                        <span class="activity-name">Подготовка к отправке</span>
+                        <span class="activity-status status-pending">Ожидание</span>
+                    </li>
+                    <li class="activity-item">
+                        <span class="activity-name">Отправка заказа</span>
+                        <span class="activity-status status-pending">Ожидание</span>
+                    </li>
+                    <li class="activity-item">
+                        <span class="activity-name">Уведомление клиента</span>
+                        <span class="activity-status status-pending">Ожидание</span>
+                    </li>
+                </ul>
+
+                <div class="controls">
+                    <button class="btn-start" onclick="startWorkflow()">▶️ Запустить Workflow</button>
+                    <button class="btn-cancel" onclick="cancelWorkflow()">⏹️ Отменить Workflow</button>
+                    <button class="btn-clear" onclick="clearLogs()">🗑️ Очистить логи</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>📝 Логи выполнения</h2>
+                <div class="panel-content">
+                    <div id="logContainer" class="log-container">
+                        <div class="log-scrollable">
+                            <div class="log-entry info">
+                                <span class="timestamp" id="currentTime"></span>
+                                Система готова к работе. Нажмите "Запустить Workflow" для начала демо.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let workflowRunning = false;
+        let currentWorkflowId = null;
+        let logCount = 0;
+        let totalOrders = 0;
+        let successfulOrders = 0;
+        let cancelledOrders = 0;
+
+        // Обновляем текущее время
+        function updateCurrentTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = 
+                now.toLocaleTimeString('ru-RU') + '.' + now.getMilliseconds().toString().padStart(3, '0');
+        }
+
+        setInterval(updateCurrentTime, 100);
+
+        // Добавление лога
+        function addLog(message, type = 'info') {
+            const logContainer = document.querySelector('.log-scrollable');
+            const now = new Date();
+            const timestamp = now.toLocaleTimeString('ru-RU') + '.' + now.getMilliseconds().toString().padStart(3, '0');
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.innerHTML = `<span class="timestamp">${timestamp}</span> ${message}`;
+            
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            logCount++;
+        }
+
+        // Обновление статуса workflow
+        function updateWorkflowStatus(status, workflowId = null) {
+            const statusElement = document.getElementById('workflowStatus');
+            const badgeElement = document.getElementById('statusBadge');
+            const progressFill = document.getElementById('progressFill');
+            
+            if (workflowId) {
+                currentWorkflowId = workflowId;
+                document.getElementById('workflowId').textContent = workflowId;
+            }
+            
+            // Убираем все классы статуса
+            statusElement.className = 'workflow-status';
+            badgeElement.className = 'status-badge';
+            
+            // Устанавливаем новый статус
+            let progress = 0;
+            switch(status) {
+                case 'CREATED':
+                    badgeElement.className += ' status-created';
+                    badgeElement.textContent = 'СОЗДАН';
+                    progress = 0;
+                    break;
+                case 'INVENTORY_CHECKED':
+                    badgeElement.className += ' status-inventory';
+                    badgeElement.textContent = 'ЗАПАСЫ ПРОВЕРЕНЫ';
+                    progress = 20;
+                    updateActivityStatus(0, 'completed');
+                    break;
+                case 'PAYMENT_PROCESSED':
+                    badgeElement.className += ' status-payment';
+                    badgeElement.textContent = 'ПЛАТЕЖ ОБРАБОТАН';
+                    progress = 40;
+                    updateActivityStatus(1, 'completed');
+                    break;
+                case 'PREPARING_FOR_SHIPMENT':
+                    badgeElement.className += ' status-preparing';
+                    badgeElement.textContent = 'ПОДГОТОВКА К ОТПРАВКЕ';
+                    progress = 60;
+                    updateActivityStatus(2, 'completed');
+                    break;
+                case 'SHIPPED':
+                    badgeElement.className += ' status-shipped';
+                    badgeElement.textContent = 'ОТПРАВЛЕН';
+                    progress = 80;
+                    updateActivityStatus(3, 'completed');
+                    break;
+                case 'DELIVERED':
+                    badgeElement.className += ' status-delivered';
+                    badgeElement.textContent = 'ДОСТАВЛЕН';
+                    progress = 100;
+                    updateActivityStatus(4, 'completed');
+                    statusElement.className += ' completed';
+                    workflowRunning = false;
+                    successfulOrders++;
+                    updateStats();
+                    break;
+                case 'CANCELLED':
+                    badgeElement.className += ' status-cancelled';
+                    badgeElement.textContent = 'ОТМЕНЕН';
+                    statusElement.className += ' cancelled';
+                    workflowRunning = false;
+                    cancelledOrders++;
+                    updateStats();
+                    break;
+                case 'RUNNING':
+                    badgeElement.className += ' status-created pulse';
+                    badgeElement.textContent = 'ВЫПОЛНЯЕТСЯ';
+                    statusElement.className += ' running';
+                    workflowRunning = true;
+                    break;
+                case 'ERROR':
+                    badgeElement.className += ' status-cancelled';
+                    badgeElement.textContent = 'ОШИБКА';
+                    statusElement.className += ' error';
+                    workflowRunning = false;
+                    break;
+            }
+            
+            progressFill.style.width = `${progress}%`;
+        }
+
+        // Обновление статуса activity
+        function updateActivityStatus(index, status) {
+            const activities = document.querySelectorAll('.activity-item');
+            if (activities[index]) {
+                const activity = activities[index];
+                const statusElement = activity.querySelector('.activity-status');
+                
+                activity.className = 'activity-item';
+                statusElement.className = 'activity-status';
+                
+                switch(status) {
+                    case 'running':
+                        activity.className += ' running';
+                        statusElement.className += ' status-running';
+                        statusElement.textContent = 'Выполняется';
+                        break;
+                    case 'completed':
+                        activity.className += ' completed';
+                        statusElement.className += ' status-completed';
+                        statusElement.textContent = 'Завершено';
+                        break;
+                    case 'failed':
+                        activity.className += ' error';
+                        statusElement.className += ' status-failed';
+                        statusElement.textContent = 'Ошибка';
+                        break;
+                    default:
+                        statusElement.className += ' status-pending';
+                        statusElement.textContent = 'Ожидание';
+                }
+            }
+        }
+
+        // Обновление статистики
+        function updateStats() {
+            document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('successfulOrders').textContent = successfulOrders;
+            document.getElementById('cancelledOrders').textContent = cancelledOrders;
+        }
+
+        // WebSocket соединение
+        let ws = null;
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 5;
+
+        function connectWebSocket() {
+            try {
+                ws = new WebSocket('ws://localhost:3000');
+                
+                ws.onopen = function() {
+                    addLog('🔗 Подключение к серверу установлено', 'success');
+                    reconnectAttempts = 0;
+                };
+                
+                ws.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        handleWebSocketMessage(data);
+                    } catch (error) {
+                        console.error('Ошибка обработки сообщения:', error);
+                    }
+                };
+                
+                ws.onclose = function() {
+                    addLog('🔌 Соединение с сервером разорвано', 'warn');
+                    if (reconnectAttempts < maxReconnectAttempts) {
+                        setTimeout(() => {
+                            reconnectAttempts++;
+                            addLog(`🔄 Попытка переподключения ${reconnectAttempts}/${maxReconnectAttempts}...`, 'info');
+                            connectWebSocket();
+                        }, 2000);
+                    }
+                };
+                
+                ws.onerror = function(error) {
+                    console.error('WebSocket ошибка:', error);
+                };
+                
+            } catch (error) {
+                console.error('Ошибка подключения WebSocket:', error);
+            }
+        }
+
+        // Обработка сообщений от WebSocket сервера
+        function handleWebSocketMessage(data) {
+            switch(data.type) {
+                case 'welcome':
+                    addLog(data.message, 'success');
+                    break;
+                    
+                case 'workflow_started':
+                    addLog(data.message, 'success');
+                    updateWorkflowStatus('RUNNING');
+                    break;
+                    
+                case 'workflow_created':
+                    updateWorkflowStatus('RUNNING', data.workflowId);
+                    addLog(data.message, 'info');
+                    break;
+                    
+                case 'workflow_completed':
+                    updateWorkflowStatus('DELIVERED');
+                    addLog(data.message, 'success');
+                    successfulOrders++;
+                    updateStats();
+                    break;
+                    
+                case 'workflow_cancelled':
+                    updateWorkflowStatus('CANCELLED');
+                    addLog(data.message, 'warn');
+                    cancelledOrders++;
+                    updateStats();
+                    break;
+                    
+                case 'activity_started':
+                    const activityMap = {
+                        'checkInventory': 0,
+                        'processPayment': 1,
+                        'prepareOrderForShipment': 2,
+                        'shipOrder': 3,
+                        'notifyCustomer': 4
+                    };
+                    if (activityMap[data.activity] !== undefined) {
+                        updateActivityStatus(activityMap[data.activity], 'running');
+                    }
+                    addLog(data.message, 'info');
+                    break;
+                    
+                case 'activity_completed':
+                    addLog(data.message, 'success');
+                    break;
+                    
+                case 'activity_failed':
+                    addLog(data.message, 'error');
+                    break;
+                    
+                case 'cancellation_sent':
+                    addLog(data.message, 'warn');
+                    break;
+                    
+                case 'logs_cleared':
+                    addLog(data.message, 'info');
+                    break;
+                    
+                case 'log':
+                    addLog(data.message, data.level || 'info');
+                    break;
+                    
+                case 'error':
+                    addLog(data.message, 'error');
+                    break;
+                    
+                default:
+                    addLog(data.message, 'info');
+            }
+        }
+
+        // Запуск workflow через WebSocket
+        function startWorkflow() {
+            if (workflowRunning) {
+                addLog('Workflow уже выполняется. Дождитесь завершения.', 'warn');
+                return;
+            }
+
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                addLog('❌ Нет подключения к серверу. Запустите live-server.js', 'error');
+                return;
+            }
+
+            totalOrders++;
+            updateStats();
+            
+            // Сброс статусов activity
+            for (let i = 0; i < 5; i++) {
+                updateActivityStatus(i, 'pending');
+            }
+            
+            // Отправляем запрос на запуск workflow
+            ws.send(JSON.stringify({
+                type: 'start_workflow',
+                timestamp: new Date().toISOString()
+            }));
+        }
+
+        // Отмена workflow через WebSocket
+        function cancelWorkflow() {
+            if (!workflowRunning || !currentWorkflowId) {
+                addLog('Нет активного workflow для отмены.', 'warn');
+                return;
+            }
+            
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                addLog('❌ Нет подключения к серверу', 'error');
+                return;
+            }
+            
+            // Отправляем запрос на отмену workflow
+            ws.send(JSON.stringify({
+                type: 'cancel_workflow',
+                workflowId: currentWorkflowId,
+                timestamp: new Date().toISOString()
+            }));
+        }
+
+        // Очистка логов через WebSocket
+        function clearLogs() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                // Если нет подключения, очищаем локально
+                const logScrollable = document.querySelector('.log-scrollable');
+                logScrollable.innerHTML = '';
+                addLog('Логи очищены', 'info');
+                return;
+            }
+            
+            // Отправляем запрос на очистку логов
+            ws.send(JSON.stringify({
+                type: 'clear_logs',
+                timestamp: new Date().toISOString()
+            }));
+        }
+
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCurrentTime();
+            updateStats();
+            addLog('🔄 Система инициализирована. Подключение к серверу...', 'info');
+            connectWebSocket();
+        });
+    </script>
+</body>
+</html>
+           
