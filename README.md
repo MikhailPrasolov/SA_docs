@@ -22,6 +22,24 @@ SA_docs/
 │   ├── Пример БД.dbml
 │   └── README.md
 │
+├── 🤖 AI агенты/                    # Материалы по AI агентам и LLM
+│   ├── deepseek_chat_vs_reasoner_comparison.md
+│   ├── deepseek_reasoner_kilocode_setup.md
+│   └── README.md
+│
+├── 🧪 Project_obscence/             # Проект по анализу нецензурных выражений
+│   ├── README.md
+│   ├── add_column.py
+│   ├── add_column_modify.py
+│   ├── add_column_modify with_AI.py
+│   ├── check_output.py
+│   ├── comparison_report.txt
+│   ├── model_comparison.csv
+│   ├── obscene.csv
+│   ├── obscene_with_flag.csv
+│   ├── obscene_with_flag_AI.csv
+│   └── obscene_with_flag_old.csv
+│
 ├── 📊 Sequence Plant UML/           # Диаграммы последовательности
 │   ├── Пример Sequence.wsd
 │   ├── Шаблон Sequence .wsd
@@ -33,10 +51,19 @@ SA_docs/
 │
 ├── ⏱️ temporal/                     # Демо-проект Temporal для оркестрации workflow
 │   ├── README.md
+│   ├── CONCEPTS.md
+│   ├── INSTALL.md
+│   ├── LIVE_DEMO.md
+│   ├── QUICK_START.md
 │   ├── powershell-demo.ps1
 │   ├── visual-demo.html
-│   ├── src/
-│   └── docker-compose.yml
+│   ├── browser-demo.html
+│   ├── live-demo.html
+│   ├── live-server.js
+│   ├── simple-demo.js
+│   ├── docker-compose.yml
+│   ├── dynamicconfig/
+│   └── src/
 │
 └── README.md
 ```
@@ -61,6 +88,21 @@ SA_docs/
   - [`Магазины_БД.dbml`](./Database/Магазины_БД.dbml) – реальная модель базы данных магазинов
 - **📋 Документация:** [`Магазины_БД_документация.md`](./Database/Магазины_БД_документация.md) – подробное описание схемы
 
+### 🤖 [AI агенты](./AI%20агенты/)
+**Описание:** Материалы по AI агентам и LLM, сравнение моделей DeepSeek Chat vs Reasoner, настройка Kilo Code
+- **📖 Сравнение моделей:** [`deepseek_chat_vs_reasoner_comparison.md`](./AI%20агенты/deepseek_chat_vs_reasoner_comparison.md) – сравнение возможностей DeepSeek Chat и Reasoner
+- **⚙️ Настройка Kilo Code:** [`deepseek_reasoner_kilocode_setup.md`](./AI%20агенты/deepseek_reasoner_kilocode_setup.md) – инструкция по настройке Kilo Code с DeepSeek Reasoner
+
+### 🧪 [Project_obscence](./Project_obscence/)
+**Описание:** Проект по анализу нецензурных выражений в текстах с использованием AI и классических методов
+- **📖 Основной гайд:** [`README.md`](./Project_obscence/README.md) – описание проекта, цели, методика
+- **🧩 Скрипты обработки:**
+  - [`add_column.py`](./Project_obscence/add_column.py) – добавление колонки с флагом нецензурности
+  - [`add_column_modify.py`](./Project_obscence/add_column_modify.py) – модифицированная версия
+  - [`add_column_modify with_AI.py`](./Project_obscence/add_column_modify%20with_AI.py) – версия с использованием AI
+  - [`check_output.py`](./Project_obscence/check_output.py) – проверка результатов
+- **📊 Данные и отчёты:** [`comparison_report.txt`](./Project_obscence/comparison_report.txt), [`model_comparison.csv`](./Project_obscence/model_comparison.csv), [`obscene.csv`](./Project_obscence/obscene.csv) и другие
+
 ### 📊 [Sequence Plant UML](./Sequence%20Plant%20UML/)
 **Описание:** Диаграммы последовательности для визуализации бизнес-процессов
 - **📖 Основной гайд:** [`README.md`](./Sequence%20Plant%20UML/README.md) – конвенции, подсказки и сниппеты
@@ -76,9 +118,18 @@ SA_docs/
 ### ⏱️ [temporal](./temporal/)
 **Описание:** Демо-проект для изучения Temporal – платформы оркестрации workflow на примере системы управления заказами (OMS)
 - **📖 Основной гайд:** [`README.md`](./temporal/README.md) – полное руководство по запуску и изучению Temporal
+- **📚 Дополнительная документация:**
+  - [`CONCEPTS.md`](./temporal/CONCEPTS.md) – ключевые концепции Temporal
+  - [`INSTALL.md`](./temporal/INSTALL.md) – инструкция по установке и настройке
+  - [`LIVE_DEMO.md`](./temporal/LIVE_DEMO.md) – руководство по live-демонстрации
+  - [`QUICK_START.md`](./temporal/QUICK_START.md) – быстрое начало работы
 - **🚀 Демо-версии:**
   - [`powershell-demo.ps1`](./temporal/powershell-demo.ps1) – PowerShell версия (работает без Node.js)
   - [`visual-demo.html`](./temporal/visual-demo.html) – визуальная версия с анимацией
+  - [`browser-demo.html`](./temporal/browser-demo.html) – браузерная демо-версия
+  - [`live-demo.html`](./temporal/live-demo.html) – интерактивная live-демонстрация
+  - [`live-server.js`](./temporal/live-server.js) – сервер для live-демо
+  - [`simple-demo.js`](./temporal/simple-demo.js) – минималистичная демо-версия на Node.js
 - **💻 Полная реализация:** [`src/`](./temporal/src/) – TypeScript реализация workflow и activity
 
 ---
