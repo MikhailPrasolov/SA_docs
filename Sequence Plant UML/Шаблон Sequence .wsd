@@ -1,18 +1,17 @@
 @startuml Шаблон_Sequence
-' Шаблон Sequence-диаграммы (актуализирован под практики 2025)
 
 !theme plain
 hide footbox
 autonumber "[000]"
 
 ' === Цветовые константы ===
-!$Add="#CCFF99"
-!$Update="#FFF3B0"
-!$Delete="#FFC0CB"
-!$Frontend="#FFD700"
-!$Backend="#E6F4EA"
-!$External="#AFDAFC"
-!$Error="#FFD6D6"
+!$Add = "#CCFF99"
+!$Update = "#FFF3B0"
+!$Delete = "#FFC0CB"
+!$Frontend = "#FFD700"
+!$Backend = "#E6F4EA"
+!$External = "#AFDAFC"
+!$Error = "#FFD6D6"
 
 ' === Легенда ===
 legend top left
@@ -46,35 +45,43 @@ participant "Web / Mobile UI" as FE #FFF8DC
 participant "API Gateway" as API #F0FFF0
 participant "Сервис домена" as SVC #E8F5E9
 database "PostgreSQL" as DB #E3F2FD
-collections "Kafka / Queue" as MQ #E8EAF6
+queue "Kafka / Queue" as MQ #E8EAF6
 participant "Внешняя АС" as EXT #E1F5FE
 
 == Основной успешный сценарий ==
 User -> FE : Инициирует действие
 activate FE
+
 FE -> API : POST /resource\n{payload}
 activate API
+
 API -> SVC : validateAndProcess(payload)
 activate SVC
+
 SVC -> DB : INSERT/UPDATE ...
 DB --> SVC : OK
+
 SVC -> MQ : Publish DomainEvent
 SVC --> API : 200 OK\n{result}
 deactivate SVC
+
 API --> FE : 200 OK\n{result}
 deactivate API
+
 FE --> User : Показывает успешный результат
 deactivate FE
 
 == Альтернативы и ошибки ==
 alt Ошибка валидации
   API --> FE : 422 Unprocessable Entity\n{errors[]}
-  note right $Error
+  note right of FE #FFD6D6
     Ошибки формата/обязательности полей.
   end note
+
 else Бизнес-конфликт
   SVC --> API : 409 Conflict\n{code,message}
   API --> FE : 409 Conflict
+
 else Внешняя АС недоступна
   SVC -> EXT : sync(request)
   EXT --> SVC : timeout/error
@@ -84,11 +91,10 @@ end
 
 == Рекомендации по оформлению ==
 note across
-1) Один @startuml = один бизнес-сценарий.
+1) Один ~
 2) Именуйте сообщения как API/действия, а не абстрактные "делает".
 3) Обязательно показывайте минимум 1 альтернативную ветку (alt/else).
 4) Для событий используйте отдельного участника (MQ/EventBus).
 5) Не перегружайте диаграмму: >25 сообщений лучше разбить на части.
 end note
-
 @enduml
