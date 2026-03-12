@@ -1,0 +1,52 @@
+@startuml Асинхронная_интеграция
+
+title Заказ: асинхронная интеграция через Kafka (outbox + retry)
+!theme plain
+hide footbox
+autonumber "[200]"
+
+actor "Клиент" as U
+participant "Order API" as API
+participant "Order Service" as SVC
+database "Order DB" as DB
+collections "Kafka Topic\norder.events" as TOPIC
+participant "Billing Service" as BILL
+participant "Notification Service" as NOTIFY
+
+== Создание заказа ==
+U -> API : POST /api/v1/orders
+API -> SVC : createOrder(cmd)
+SVC -> DB : INSERT order + outbox_event (tx)
+DB --> SVC : committed
+SVC --> API : 201 Created\n{orderId}
+API --> U : 201 Created
+
+== Публикация события из outbox ==
+loop Каждые N секунд
+  SVC -> DB : SELECT outbox_event WHERE status='NEW' LIMIT 100
+  DB --> SVC : events[]
+  SVC -> TOPIC : publish(OrderCreated)
+  TOPIC --> SVC : ack
+  SVC -> DB : mark outbox_event='SENT'
+end
+
+== Подписчики ==
+TOPIC -> BILL : OrderCreated
+BILL -> BILL : reserveFunds()
+BILL -> TOPIC : publish(BillingReserved)
+
+TOPIC -> NOTIFY : BillingReserved
+NOTIFY -> NOTIFY : sendEmailToCustomer()
+
+alt Ошибка у подписчика
+  TOPIC -> BILL : OrderCreated
+  BILL -> BILL : exception
+  BILL -> TOPIC : publish(BillingFailed)
+  note right
+    Рекомендуется:
+    - retry с backoff
+    - DLQ после N попыток
+  end note
+end
+
+@enduml

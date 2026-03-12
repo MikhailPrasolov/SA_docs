@@ -1,87 +1,109 @@
-@startuml Управление пользователями
+@startuml Управление_пользователями_v2
 
-title Микросервис управления пользователями
+title User Management: регистрация, логин и управление ролями
+!theme plain
+hide footbox
+autonumber "[001]"
 
-autonumber
-
-' === Цветовые константы ===
 !$Add="#CCFF99"
-!$Update="#FFFF99"
 !$Delete="#FFC0CB"
-!$Backend="#LightYellow"
-!$Frontend="#FFD700"
-!$ExternalSystem="#afdafc"
+!$Security="#FFE0B2"
+!$Error="#FFD6D6"
 
-' === Легенда ===
-legend top left
-| <size:20> Легенда </size>             |
-| <$Add>     Добавить                   |
-| <$Update>  Изменить                  |
-| <$Delete>  Удалить                   |
-| <$Frontend> Комментарий для фронта   |
-| <$Backend>  Комментарий для бэка     |
-| <$ExternalSystem> Внешняя система    |
-endlegend
-
-' === Стиль ===
-scale 0.9
 skinparam {
-    MaxMessageSize 140
+    MaxMessageSize 120
     RoundCorner 10
-    ParticipantFontSize 17
-    DatabaseBackgroundColor #e0f3f1/#a3ccc9
-    TitleFontSize 25
-    TitleBackgroundColor #FEEFEF
-    TitleBorderColor #a80035
-    ParticipantPadding 40
+    ParticipantPadding 30
+    ParticipantFontSize 14
+    ArrowFontSize 12
+    SequenceMessageAlign center
 }
 
-' === Участники ===
 actor "Пользователь" as User
-participant "Frontend\n(React/Vue)" as FE $Frontend
-participant "Backend\n(user-ms)" as BE $Backend
+participant "Frontend\n(React/Vue)" as FE
+gateway "API Gateway" as GW
+participant "Auth Service" as AUTH
+participant "User Service" as US
 database "PostgreSQL\n(users, roles, tokens)" as DB
+participant "Email Service" as MAIL
 
-box ""
-
-' === Основной процесс ===
 == Регистрация пользователя ==
+User -> FE: Заполняет форму регистрации
+FE -> GW: POST /api/v1/users/register\n{name,email,password}
+GW -> AUTH: validate(email,password)
+AUTH --> GW: validationResult
 
-User -> FE : Вводит данные для регистрации
-FE -> BE : POST /api/users/register
-BE -> DB : INSERT INTO users
-note right of DB $Add
-  Создание новой записи пользователя  
-end note
-BE -> FE : 201 Created
+alt Данные валидны
+    GW -> US: createUser(name,email,password_hash)
+    US -> DB: INSERT INTO users
+    DB --> US: user_id
+    US -> MAIL: sendVerificationEmail(user_id,email)
+    MAIL --> US: accepted
+    US --> GW: 201 Created\n{userId,status}
+    GW --> FE: 201 Created
+    FE --> User: Регистрация успешна
+    note right of DB $Add
+      Создан пользователь
+      со статусом PENDING_VERIFICATION
+    end note
+else Email уже существует
+    US --> GW: 409 Conflict\n{code:"EMAIL_EXISTS"}
+    GW --> FE: 409 Conflict
+    FE --> User: Показывает ошибку
+    note right $Error
+      Бизнес-ошибка: дублирование email
+    end note
+else Ошибка валидации
+    AUTH --> GW: 422 Unprocessable Entity\n{errors[]}
+    GW --> FE: 422 Unprocessable Entity
+end
 
 == Авторизация пользователя ==
+User -> FE: Вводит email + пароль
+FE -> GW: POST /api/v1/auth/login\n{email,password}
+GW -> AUTH: authenticate(email,password)
+AUTH -> DB: SELECT user + password_hash
+DB --> AUTH: userRecord
 
-User -> FE : Вводит email + пароль
-FE -> BE : POST /api/auth/login
-BE -> DB : SELECT user by email
-BE -> DB : Проверка password_hash
-BE -> DB : INSERT INTO user_login_history
-BE -> FE : 200 OK + JWT
+alt Успешная авторизация
+    AUTH -> AUTH: signJWT(userId,roles)
+    AUTH -> DB: INSERT INTO user_login_history
+    AUTH --> GW: 200 OK\n{accessToken,refreshToken}
+    GW --> FE: 200 OK
+    FE --> User: Открывает личный кабинет
+    note right $Security
+      Рекомендуется:
+      - access token 15 мин
+      - refresh token 30 дней
+    end note
+else Неверные учетные данные
+    AUTH --> GW: 401 Unauthorized
+    GW --> FE: 401 Unauthorized
+    FE --> User: Сообщение "Неверный логин или пароль"
+end
 
-== Изменение ролей пользователя ==
+== Назначение роли ==
+User -> FE: Выбирает роль для сотрудника
+FE -> GW: POST /api/v1/users/{id}/roles\n{role}
+GW -> US: assignRole(userId,role)
+US -> DB: INSERT INTO user_roles
+DB --> US: OK
+US --> GW: 200 OK
+GW --> FE: 200 OK
+FE --> User: Роль назначена
 
-User -> FE : Назначает роль пользователю
-FE -> BE : POST /api/users/{id}/roles
-BE -> DB : INSERT INTO user_roles
-note right of DB $Add
-  Присвоение роли пользователю  
-end note
-BE -> FE : 200 OK
-
-== Удаление пользователя ==
-
-User -> FE : Удаляет пользователя
-FE -> BE : DELETE /api/users/{id}
-BE -> DB : UPDATE users SET status='deleted'
+== Мягкое удаление пользователя ==
+User -> FE: Удаляет пользователя
+FE -> GW: DELETE /api/v1/users/{id}
+GW -> US: deleteUser(userId)
+US -> DB: UPDATE users SET status='deleted', deleted_at=now()
+DB --> US: OK
+US --> GW: 204 No Content
+GW --> FE: 204 No Content
+FE --> User: Пользователь архивирован
 note right of DB $Delete
-  Мягкое удаление записи  
+  Soft delete для соответствия
+  требованиям аудита и отката
 end note
-BE -> FE : 204 No Content
 
 @enduml
