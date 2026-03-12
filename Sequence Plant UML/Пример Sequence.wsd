@@ -21,7 +21,7 @@ skinparam {
 
 actor "Пользователь" as User
 participant "Frontend\n(React/Vue)" as FE
-gateway "API Gateway" as GW
+participant "API Gateway" as GW
 participant "Auth Service" as AUTH
 participant "User Service" as US
 database "PostgreSQL\n(users, roles, tokens)" as DB
