@@ -47,9 +47,11 @@ SA_docs/
   - `*.csv`, `comparison_report.txt`
 
 ### `Sequence Plant UML/`
-- `README.md` — правила и подходы к Sequence-диаграммам.
-- `Пример Sequence.wsd` — пример диаграммы.
-- `Шаблон Sequence .wsd` — шаблон для старта.
+- `README.md` — актуализированные регламенты по Sequence-диаграммам и примеры промптов с Context7.
+- `Шаблон Sequence .wsd` — унифицированный шаблон (happy-path/error-path, async-ready).
+- `Пример Sequence.wsd` — обновлённый пример User Management.
+- `Пример Sequence - Оплата заказа.wsd` — пример синхронной оплаты (idempotency + webhook).
+- `Пример Sequence - Асинхронная интеграция.wsd` — пример событийной интеграции (outbox/retry/DLQ).
 
 ### `Structurizr/`
 - `README.md` — основы C4/Structurizr DSL.

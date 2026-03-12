@@ -1,0 +1,46 @@
+@startuml Оплата_заказа
+
+title E-commerce: синхронная оплата заказа (3DS + идемпотентность)
+!theme plain
+hide footbox
+autonumber "[100]"
+
+actor "Покупатель" as C
+participant "Frontend" as FE
+participant "Order API" as API
+participant "Payment Service" as PAY
+participant "PSP (эквайер)" as PSP
+database "Orders DB" as DB
+
+== Инициация оплаты ==
+C -> FE : Нажимает "Оплатить"
+FE -> API : POST /api/v1/orders/{id}/pay\nIdempotency-Key
+API -> DB : SELECT order by id
+DB --> API : order(status=NEW)
+API -> PAY : createPayment(order,idempotencyKey)
+PAY -> PSP : /payments/create
+PSP --> PAY : paymentId + redirectUrl(3DS)
+PAY --> API : 202 Accepted\n{paymentId,redirectUrl}
+API --> FE : 202 Accepted
+FE --> C : Редирект на 3DS
+
+== Callback от PSP ==
+PSP -> PAY : webhook(payment.succeeded)
+PAY -> PAY : verifySignature()
+PAY -> DB : UPDATE orders SET status='PAID'
+DB --> PAY : OK
+PAY -> API : publishOrderPaid(orderId)
+
+alt Повторный запрос с тем же Idempotency-Key
+  FE -> API : POST /pay (same key)
+  API -> PAY : findPaymentByKey(key)
+  PAY --> API : existing payment state
+  API --> FE : 200 OK\n{paymentId,status}
+else Ошибка оплаты
+  PSP --> PAY : payment.failed
+  PAY -> DB : UPDATE orders SET status='PAYMENT_FAILED'
+  PAY --> API : notifyFailure(orderId,reason)
+  API --> FE : 402 Payment Required
+end
+
+@enduml

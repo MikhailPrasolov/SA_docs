@@ -1,133 +1,94 @@
-@startuml тут название
+@startuml Шаблон_Sequence
+' Шаблон Sequence-диаграммы (актуализирован под практики 2025)
 
-autonumber
+!theme plain
+hide footbox
+autonumber "[000]"
 
-title тут название
-
-'Константы
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' === Цветовые константы ===
 !$Add="#CCFF99"
-!$Update="#FFFF99"
+!$Update="#FFF3B0"
 !$Delete="#FFC0CB"
-!$Backend="#LightYellow"
 !$Frontend="#FFD700"
-!$ExternalSystem="#afdafc"
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' Легенда (если не нужна то закомментируйте)
+!$Backend="#E6F4EA"
+!$External="#AFDAFC"
+!$Error="#FFD6D6"
+
+' === Легенда ===
 legend top left
-    | <size:20> Легенда </size>             |
-    | <$Add>  Добавить                      |
-    | <$Update>  Изменить                   |
-    | <$Delete>  Удалить                    |
-    | <$Backend> Комментарий для бекенда    |
-    | <$Frontend> Комментарий для фронтенда |
-    | <$ExternalSystem> Внешняя АС          |
+|= Цвет |= Назначение |
+|<$Add>|Создание|
+|<$Update>|Изменение|
+|<$Delete>|Удаление|
+|<$Frontend>|Шаг фронтенда|
+|<$Backend>|Шаг бэкенда|
+|<$External>|Внешняя система/интеграция|
+|<$Error>|Ошибки/инциденты|
 endlegend
 
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-'Описание стиля диаграммы
-scale 0.85
-!include <cloudinsight/kafka>
- skinparam {
-     MaxMessageSize 150
-     RoundCorner 10
-     ActorFontSize 20
-     ParticipantBackgroundColor #e0f3f1/#a3ccc9
-     ParticipantFontSize 17
-     QueueFontSize 10
-     QueueBackgroundColor #e0f3f1/#a3ccc9
-     DatabaseFontSize 20
-     DatabaseBackgroundColor #e0f3f1/#a3ccc9
-     BoundaryFontSize 20
-     ControlFontSize 20
-     EntityFontSize 20
-     TitleFontColor Black
-     TitleBackgroundColor #O_FEO_FEce
-     TitleBorderRoundCorner 25
-     TitleFontSize 30
-     TitleBorderColor #a80035
-     TitleBorderThickness 0.5
-     ParticipantPadding 50
-     LegendBackgroundColor #O_FEO_FEce
-     LegendBorderColor #a80035
-     LegendFontSize 15
- }
+skinparam {
+  MaxMessageSize 120
+  RoundCorner 10
+  ParticipantPadding 30
+  ParticipantFontSize 14
+  ArrowFontSize 12
+  NoteFontSize 12
+  SequenceMessageAlign center
+  ResponseMessageBelowArrow true
+  LifeLineBorderColor #666666
+}
 
+title Тут название процесса
 
-'Описание участников процесса
-actor User as User
+' === Участники ===
+actor "Пользователь" as User
+participant "Web / Mobile UI" as FE #FFF8DC
+participant "API Gateway" as API #F0FFF0
+participant "Сервис домена" as SVC #E8F5E9
+database "PostgreSQL" as DB #E3F2FD
+collections "Kafka / Queue" as MQ #E8EAF6
+participant "Внешняя АС" as EXT #E1F5FE
 
-'Фронты
-participant AP as FE order 70 $Frontend
+== Основной успешный сценарий ==
+User -> FE : Инициирует действие
+activate FE
+FE -> API : POST /resource\n{payload}
+activate API
+API -> SVC : validateAndProcess(payload)
+activate SVC
+SVC -> DB : INSERT/UPDATE ...
+DB --> SVC : OK
+SVC -> MQ : Publish DomainEvent
+SVC --> API : 200 OK\n{result}
+deactivate SVC
+API --> FE : 200 OK\n{result}
+deactivate API
+FE --> User : Показывает успешный результат
+deactivate FE
 
-'Бэкенд
-participant BE as O_BE order 70 $Backend
+== Альтернативы и ошибки ==
+alt Ошибка валидации
+  API --> FE : 422 Unprocessable Entity\n{errors[]}
+  note right $Error
+    Ошибки формата/обязательности полей.
+  end note
+else Бизнес-конфликт
+  SVC --> API : 409 Conflict\n{code,message}
+  API --> FE : 409 Conflict
+else Внешняя АС недоступна
+  SVC -> EXT : sync(request)
+  EXT --> SVC : timeout/error
+  SVC --> API : 503 Service Unavailable
+  API --> FE : 503 Service Unavailable
+end
 
-participant "Внешняя АС" as Audit order 70 $ExternalSystem
-
-
-'Топики
-  box "\n<$kafka>\nkafka" #White
-    queue "TOPIC \nкакое-то очень \nдлинное название" as Q_SS order 220
-    queue "<size:11>Topic Name" as Q_OS order 60
-  end box
-
-'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-'Описание процесса  
-hnote across: Здесь инфа о процессе
-
-
-  opt
-    User -> O_FE: Что-то сделал
-    O_FE -> User: Ответил
-    User -> O_FE: Что-то сделал
-
-    activate O_FE #FFBBBB
-    O_FE -> O_BE: Request
-
-    note left $Frontend
-      коммент для фронта 
-    end note
-
-
-    activate O_BE #005500
-    O_BE -> O_BE: Внутренняя логика работы сбор инфы 
-    O_BE -> O_BE !!: Что-удалил
-    deactivate O_BE
-
-    O_FE <-- O_BE : Response
-    deactivate O_FE
-  end
-
-
-alt тут можно написать что сделал
-  User -> O_FE : Что-то сделал
-  O_FE -> O_BE : Ответил
-  User -> O_FE : Что-то сделал
-else тут можно написать что сделал
-  User -> O_FE : Что-то другое сделал
-  O_FE -> User : Ответил
-  User -> O_FE : Что-то сделал
-end 
-
-O_BE -> Audit
- note over Audit $Backend
-  коммент для бэка
-  --**Что нужно сделать**--
-  Описание действия
-  --**Что нужно сделать**--
-  Описание действия
-
-end note  
-
-O_BE -> O_BE : Что-то сделал
-note left $Backend
-  коммент для бэка
+== Рекомендации по оформлению ==
+note across
+1) Один @startuml = один бизнес-сценарий.
+2) Именуйте сообщения как API/действия, а не абстрактные "делает".
+3) Обязательно показывайте минимум 1 альтернативную ветку (alt/else).
+4) Для событий используйте отдельного участника (MQ/EventBus).
+5) Не перегружайте диаграмму: >25 сообщений лучше разбить на части.
 end note
 
-O_BE -> Q_OS
-note over Audit $Backend
-  коммент для бэка
-end note  
- 
 @enduml
