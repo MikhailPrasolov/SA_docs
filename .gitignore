@@ -1,0 +1,23 @@
+# SA_docs .gitignore
+
+# Node.js dependencies (Temporal demo)
+temporal/node_modules/
+temporal/package-lock.json
+
+# CSV data files (Project_obscence)
+Project_obscence/*.csv
+!Project_obscence/README.md
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.log
