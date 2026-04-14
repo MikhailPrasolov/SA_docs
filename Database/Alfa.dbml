@@ -1,0 +1,176 @@
+Project "PBE Alfa MVNO" {
+  database_type: "PostgreSQL"
+  Note: '''
+    DBML сгенерирован по документу "Аппликативные таблицы".
+    Есть неоднозначности:
+    1. В одном месте FK указан как PAM_RESERVE_MSIDSN.ID, вероятно опечатка, принято PAM_RESERVE_MSISDN.ID.
+    2. Часть ограничений в источнике описана как частичные/условные индексы — в DBML они отражены как notes/indexes без точной SQL-реализации.
+    3. SYSTEM_CODE и справочник EVENT_TYPE упомянуты, но их структуры в документе не даны.
+  '''
+}
+
+Table PAM_CLIENT {
+  ID bigint [pk, not null, note: 'ID записи в БД']
+  EXT_CLIENT_ID varchar(50) [not null, unique, note: 'Интеграционный ключ клиента, регистрозависимый; внешний ID клиента банка / extClientId / IDENT_CLIENT_EXT']
+  BEE_CLIENT varchar(50) [not null, unique, note: 'ID клиента БД микросервиса; формат "BEE" + ID; в методах отдаем как ID_CLIENT_FW']
+  STATUS varchar(1) [not null, note: 'A - активный, T - новый, D - заблокированный/расторгнутый']
+  CREATED_AT timestamp [not null, note: 'Дата создания, TIMESTAMPZ, МСК']
+  UPDATED_AT timestamp [note: 'Дата изменения, TIMESTAMPZ, МСК']
+  ACTIVATION_DATE timestamp [note: 'Дата подписания договора в системах BSS Билайн']
+  EXPIRATION_DATE timestamp [note: 'Дата расторжения договора с банком']
+
+  Note: 'Открытый вопрос в источнике: сценарий повторного подписания договора после расторжения'
+}
+
+Table PAM_CONTRACT {
+  ID bigint [pk, not null, note: 'ID_CONTRACT_FW / ID_SERVICE_FW; основная услуга мобильной связи']
+  CLIENT_ID bigint [not null, ref: > PAM_CLIENT.ID]
+  BEE_CONTRACT varchar(50) [not null, unique, note: 'IDENT_CONTRACT_FW; формат "BEE_" + ID']
+  STATUS smallint [not null, note: '1 - действующий, 0 - удаленный, 2 - расторгнутый, -1 - временный']
+  CREATED_AT timestamp [not null, note: 'Дата создания, TIMESTAMPZ, МСК']
+  UPDATED_AT timestamp [note: 'Дата последнего изменения, TIMESTAMPZ, МСК']
+  ACTIVATION_DATE timestamp [note: 'Дата подписания договора через витрины Альфа Банка']
+  EXPIRATION_DATE timestamp [note: 'Дата расторжения договора с банком']
+  MSISDN varchar(11) [note: 'Номер в формате 11 цифр, начиная с 7']
+  BAN int [note: 'Номер договора (BAN)']
+  FIRST_NUMBER_IND boolean [not null, note: 'Признак первого CTN с улучшенными условиями']
+
+  Indexes {
+    (CLIENT_ID, STATUS) [name: 'idx_pam_contract_client_status']
+    (BEE_CONTRACT, STATUS) [name: 'idx_pam_contract_bee_contract_status']
+    MSISDN [name: 'idx_pam_contract_msisdn']
+    (BAN, MSISDN) [name: 'idx_pam_contract_ban_msisdn']
+  }
+
+  Note: '''
+    Бизнес-правило: в любой момент времени у клиента может быть не более 1 контракта
+    с FIRST_NUMBER_IND = true и STATUS = 1.
+    Это лучше реализовать частичным уникальным индексом на SQL-уровне.
+  '''
+}
+
+Table PAM_EVENT_HISTORY {
+  ID bigint [pk, not null, note: 'Уникальный ID экземпляра операции в системе PBE-Альфа']
+  CONTRACT_ID bigint [ref: > PAM_CONTRACT.ID, note: 'Идентификатор контракта FW']
+  CREATED_AT timestamp [not null, note: 'Дата и время создания, TIMESTAMPZ']
+  UPDATED_AT timestamp [note: 'Дата и время обновления, TIMESTAMPZ']
+  EVENT_TYPE varchar(25) [not null, note: 'Тип операции; предполагается справочник']
+  STATUS varchar(20) [not null, note: 'NEW / SUCCESS / ERROR']
+  CODE varchar(20) [note: 'Код результата в случае ошибки']
+  PAYLOAD jsonb [note: 'Дополнительные параметры для сопровождения и джобов']
+  SYSTEM_CODE varchar(15) [note: 'Мнемоника системы; справочник SYSTEM_CODE не описан']
+  CALLBACK_STATUS boolean [note: 'null - не пытались, false - ошибка, true - успех']
+  CTN_ACTUAL_STATUS boolean [note: 'null - не пытались, false - ошибка, true - успех']
+  CACHE_ACTUAL_STATUS boolean [note: 'null - не пытались, false - ошибка, true - успех']
+
+  Indexes {
+    (EVENT_TYPE, CALLBACK_STATUS) [name: 'idx_pam_event_history_event_callback']
+    (EVENT_TYPE, CTN_ACTUAL_STATUS) [name: 'idx_pam_event_history_event_ctn']
+    (EVENT_TYPE, CACHE_ACTUAL_STATUS) [name: 'idx_pam_event_history_event_cache']
+  }
+}
+
+Table PAM_BASKET {
+  ID bigint [pk, not null, note: 'CART_ID']
+  CREATED_AT timestamp [not null, note: 'Дата и время создания, TIMESTAMPZ']
+  UPDATED_AT timestamp [note: 'Дата и время обновления, TIMESTAMPZ']
+  STATUS varchar(1) [not null, note: 'T - Tentative, S - Submitted, C - Confirmed, D - Delete']
+  ARENA_OFFER_ID varchar [note: 'OFFER_ID для оферов, возвращаемых из арены']
+  CONTRACT_ID bigint [ref: > PAM_CONTRACT.ID]
+  MSISDN varchar(11) [note: 'Номер абонента в формате 11 цифр начиная с 7']
+  IMEI varchar(16) [note: 'IMEI']
+  ICCID varchar(18) [note: 'Серийный номер SIM-карты']
+  ESIM boolean [note: 'TRUE - eSIM, FALSE - пластик']
+  MARKET_CODE varchar(3)
+  BRANCH_MNEMONIC varchar(10)
+  ALFA_EMPLOYEE_ID varchar(50) [note: 'IDENT_EMPLOYEE']
+  SYSTEM_CODE varchar(15) [note: 'Мнемоника системы; справочник SYSTEM_CODE не описан']
+  EVENT_HISTORY_ID bigint [ref: > PAM_EVENT_HISTORY.ID, note: 'ex request_id']
+  PORTED_MSISDN varchar(11) [note: 'Переносимый MSISDN']
+  RESERVE_ID bigint [ref: > PAM_RESERVE_MSISDN.ID, note: 'В документе есть опечатка PAM_RESERVE_MSIDSN']
+  MSISDN_PRICE numeric(8,2) [note: 'Цена выбранного номера']
+  PERSON_ID varchar(18) [note: 'person_id в Ensemble']
+
+  Indexes {
+    (STATUS, CREATED_AT) [name: 'idx_pam_basket_status_created_at']
+    CONTRACT_ID [name: 'idx_pam_basket_contract_id']
+    EVENT_HISTORY_ID [name: 'idx_pam_basket_event_history_id']
+    RESERVE_ID [name: 'idx_pam_basket_reserve_id']
+  }
+}
+
+Table PAM_RESERVE_MSISDN {
+  ID bigint [pk, not null, note: 'Уникальный идентификатор записи']
+  EXT_CLIENT_ID varchar(50) [not null, note: 'Внешний CUS банка / IDENT_CLIENT_EXT']
+  CREATED_AT timestamp [not null, note: 'Дата создания, TIMESTAMPZ']
+  UPDATED_AT timestamp [note: 'Дата обновления, TIMESTAMPZ']
+  MSISDN varchar(11) [not null, note: 'Номер абонента в формате 11 символов с 7']
+  ENS_RESERVE_ID varchar(20) [note: 'Идентификатор резерва из Ансамбля']
+  RESERVE_DATE date [note: 'Дата окончания резервирования']
+
+  Indexes {
+    (EXT_CLIENT_ID, RESERVE_DATE) [name: 'idx_pam_reserve_msisdn_ext_client_reserve_date']
+    MSISDN [name: 'idx_pam_reserve_msisdn_msisdn']
+  }
+}
+
+Table PAM_SERVICE_AGREEMENT {
+  ID bigint [pk, not null, note: 'ID экземпляра услуги FW; фиктивный ID для маппинга моделей']
+  CONTRACT_ID bigint [not null, ref: > PAM_CONTRACT.ID, note: 'Основная услуга мобильной связи']
+  SOC varchar(10) [not null, note: 'Сущность сервиса']
+  CREATED_AT timestamp [not null, note: 'Дата создания, TIMESTAMPZ, МСК']
+  UPDATED_AT timestamp [note: 'Дата последнего изменения, TIMESTAMPZ, МСК']
+  EFFECTIVE_DATE timestamp [not null, note: 'Дата начала действия услуги/тарифа']
+  EXPIRATION_DATE timestamp [note: 'Дата окончания действия услуги/тарифа']
+  SOC_TYPE varchar(1) [not null, note: 'P - тариф, S - обязательный SOC, O - optional SOC, D - discount SOC']
+  PROFILE varchar(10) [note: 'Профиль клиента на момент создания записи']
+
+  Indexes {
+    CONTRACT_ID [name: 'idx_pam_service_agreement_contract_id']
+  }
+}
+
+Table PAM_CLIENT_PROFILE_HISTORY {
+  ID bigint [pk, not null]
+  CLIENT_ID bigint [not null, ref: > PAM_CLIENT.ID, note: 'Клиент из PAM_CLIENT']
+  PROFILE varchar(10) [note: 'Профиль клиента из Альфы']
+  STATUS varchar(1) [note: 'A - активный, H - исторический']
+  EFFECTIVE_DATE timestamp [note: 'Дата активации текущего профиля']
+  EXPIRATION_DATE timestamp [note: 'Дата окончания действия профиля']
+
+  Indexes {
+    (CLIENT_ID, STATUS) [name: 'idx_pam_client_profile_history_client_status']
+  }
+
+  Note: '''
+    В источнике указано: unique по CLIENT_ID и status = 'A'.
+    Это частичный уникальный индекс, в DBML отражен как note.
+  '''
+}
+
+Table PAM_CLAIM {
+  ID bigint [pk, not null]
+  CLIENT_ID bigint [not null, ref: > PAM_CLIENT.ID]
+  CREATED_AT timestamp [not null, note: 'Дата создания, TIMESTAMPZ']
+  UPDATED_AT timestamp [note: 'Дата обновления, TIMESTAMPZ']
+  PORTED_MSISDN varchar(11) [not null, unique, note: 'DONOR_MSISDN']
+  MNP_CLAIM_ID varchar(20) [not null, unique, note: 'Номер заявления на портацию в системе MNP']
+
+  Indexes {
+    PORTED_MSISDN [name: 'idx_pam_claim_ported_msisdn']
+    MNP_CLAIM_ID [name: 'idx_pam_claim_mnp_claim_id']
+  }
+}
+
+Table PAM_SERVICE_PARAMETERS {
+  ID bigint [pk, not null, note: 'Уникальный ID экземпляра операции в системе PBE-Альфа']
+  BASKET_ID bigint [not null, ref: > PAM_BASKET.ID]
+  CREATED_AT timestamp [not null, note: 'Дата создания, TIMESTAMPZ, МСК']
+  UPDATED_AT timestamp [note: 'Дата обновления, TIMESTAMPZ, МСК']
+  SOC varchar [not null, note: 'SOC тарифа, скидки или опц.сока']
+  SOC_TYPE varchar [not null, note: 'P - тарифный план, D - сок скидки, O - доп.соки, P - сок привилегии, T - сок триала']
+  FEATURE varchar [not null, note: 'Фича на соке']
+  FEATURE_PARAM jsonb [note: 'Параметры фичеров']
+
+  Note: 'В источнике для SOC_TYPE есть дублирование значения P с разными трактовками; требует уточнения'
+}

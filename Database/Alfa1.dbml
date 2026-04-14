@@ -1,0 +1,295 @@
+Project "PBE Alfa MVNO" {
+  database_type: "PostgreSQL"
+  Note: '''
+    Полная модель БД по двум документам:
+    1) Аппликативные таблицы
+    2) Справочники
+
+    Допущения:
+    - MARKET_TO_HLR_MAP не включен в целевую модель, так как в документе помечен как draft/отклонен.
+    - EVENT_TYPE_DESC и SYSTEM_CODE в явном виде упомянуты как вспомогательные таблицы,
+      но детальная структура в доступном фрагменте не раскрыта, поэтому ниже они заведены
+      как минимальные справочники по факту использования.
+    - Часть связей со справочниками оставлена как логические, а не жесткие FK,
+      потому что в источнике не везде зафиксирована уникальность бизнес-ключей.
+    - PAM_RESERVE_MSIDSN в одном месте исходника — опечатка, принято PAM_RESERVE_MSISDN.
+  '''
+}
+
+//////////////////////////////
+// ОПЕРАЦИОННЫЕ ТАБЛИЦЫ
+//////////////////////////////
+
+Table PAM_CLIENT {
+  ID bigint [pk, not null, note: 'ID записи в БД']
+  EXT_CLIENT_ID varchar(50) [not null, unique, note: 'Интеграционный ключ клиента / extClientId / IDENT_CLIENT_EXT']
+  BEE_CLIENT varchar(50) [not null, unique, note: 'Формат BEE + ID; в методах ID_CLIENT_FW']
+  STATUS varchar(1) [not null, note: 'A - активный, T - новый, D - заблокированный/расторгнутый']
+  CREATED_AT timestamptz [not null]
+  UPDATED_AT timestamptz
+  ACTIVATION_DATE timestamptz
+  EXPIRATION_DATE timestamptz
+}
+
+Table PAM_CONTRACT {
+  ID bigint [pk, not null, note: 'ID_CONTRACT_FW / ID_SERVICE_FW']
+  CLIENT_ID bigint [not null, ref: > PAM_CLIENT.ID]
+  BEE_CONTRACT varchar(50) [not null, unique, note: 'IDENT_CONTRACT_FW; формат BEE_ + ID']
+  STATUS smallint [not null, note: '1 - действующий, 0 - удаленный, 2 - расторгнутый, -1 - временный']
+  CREATED_AT timestamptz [not null]
+  UPDATED_AT timestamptz
+  ACTIVATION_DATE timestamptz
+  EXPIRATION_DATE timestamptz
+  MSISDN varchar(11)
+  BAN int
+  FIRST_NUMBER_IND boolean [not null]
+
+  Indexes {
+    (CLIENT_ID, STATUS) [name: 'idx_pam_contract_client_status']
+    (BEE_CONTRACT, STATUS) [name: 'idx_pam_contract_bee_contract_status']
+    MSISDN [name: 'idx_pam_contract_msisdn']
+    (BAN, MSISDN) [name: 'idx_pam_contract_ban_msisdn']
+  }
+
+  Note: 'Бизнес-правило: у клиента в каждый момент не более одного активного контракта с FIRST_NUMBER_IND = true'
+}
+
+Table EVENT_TYPE_DESC {
+  CODE varchar(25) [pk, not null, note: 'Код типа операции']
+  DESCRIPTION varchar(255) [not null, note: 'Расшифровка типа операции']
+
+  Note: 'Минимальная структура восстановлена по использованию PAM_EVENT_HISTORY.EVENT_TYPE'
+}
+
+Table SYSTEM_CODE {
+  CODE varchar(15) [pk, not null, note: 'Мнемоника системы']
+  DESCRIPTION varchar(255) [not null, note: 'Описание системы']
+
+  Note: 'Минимальная структура восстановлена по использованию в PAM_EVENT_HISTORY и PAM_BASKET'
+}
+
+Table PAM_EVENT_HISTORY {
+  ID bigint [pk, not null]
+  CONTRACT_ID bigint [ref: > PAM_CONTRACT.ID]
+  CREATED_AT timestamptz [not null]
+  UPDATED_AT timestamptz
+  EVENT_TYPE varchar(25) [not null, ref: > EVENT_TYPE_DESC.CODE]
+  STATUS varchar(20) [not null, note: 'NEW / SUCCESS / ERROR']
+  CODE varchar(20)
+  PAYLOAD jsonb
+  SYSTEM_CODE varchar(15) [ref: > SYSTEM_CODE.CODE]
+  CALLBACK_STATUS boolean
+  CTN_ACTUAL_STATUS boolean
+  CACHE_ACTUAL_STATUS boolean
+
+  Indexes {
+    (EVENT_TYPE, CALLBACK_STATUS) [name: 'idx_pam_event_history_event_callback']
+    (EVENT_TYPE, CTN_ACTUAL_STATUS) [name: 'idx_pam_event_history_event_ctn']
+    (EVENT_TYPE, CACHE_ACTUAL_STATUS) [name: 'idx_pam_event_history_event_cache']
+  }
+}
+
+Table PAM_BASKET {
+  ID bigint [pk, not null, note: 'CART_ID']
+  CREATED_AT timestamptz [not null]
+  UPDATED_AT timestamptz
+  STATUS varchar(1) [not null, note: 'T - Tentative, S - Submitted, C - Confirmed, D - Delete']
+  ARENA_OFFER_ID varchar
+  CONTRACT_ID bigint [ref: > PAM_CONTRACT.ID]
+  MSISDN varchar(11)
+  IMEI varchar(16)
+  ICCID varchar(18)
+  ESIM boolean
+  MARKET_CODE varchar(3) [note: 'Логически соответствует справочнику точек/маркетов']
+  BRANCH_MNEMONIC varchar(10) [note: 'Логически соответствует BRANCH_MNEMONICS из справочника точек']
+  ALFA_EMPLOYEE_ID varchar(50)
+  SYSTEM_CODE varchar(15) [ref: > SYSTEM_CODE.CODE]
+  EVENT_HISTORY_ID bigint [ref: > PAM_EVENT_HISTORY.ID]
+  PORTED_MSISDN varchar(11)
+  RESERVE_ID bigint [ref: > PAM_RESERVE_MSISDN.ID]
+  MSISDN_PRICE numeric(8,2)
+  PERSON_ID varchar(18)
+
+  Indexes {
+    (STATUS, CREATED_AT) [name: 'idx_pam_basket_status_created_at']
+    CONTRACT_ID [name: 'idx_pam_basket_contract_id']
+    EVENT_HISTORY_ID [name: 'idx_pam_basket_event_history_id']
+    RESERVE_ID [name: 'idx_pam_basket_reserve_id']
+    MARKET_CODE [name: 'idx_pam_basket_market_code']
+    BRANCH_MNEMONIC [name: 'idx_pam_basket_branch_mnemonic']
+  }
+}
+
+Table PAM_RESERVE_MSISDN {
+  ID bigint [pk, not null]
+  EXT_CLIENT_ID varchar(50) [not null]
+  CREATED_AT timestamptz [not null]
+  UPDATED_AT timestamptz
+  MSISDN varchar(11) [not null]
+  ENS_RESERVE_ID varchar(20)
+  RESERVE_DATE date
+
+  Indexes {
+    (EXT_CLIENT_ID, RESERVE_DATE) [name: 'idx_pam_reserve_msisdn_ext_client_reserve_date']
+    MSISDN [name: 'idx_pam_reserve_msisdn_msisdn']
+  }
+}
+
+Table PAM_SERVICE_AGREEMENT {
+  ID bigint [pk, not null]
+  CONTRACT_ID bigint [not null, ref: > PAM_CONTRACT.ID]
+  SOC varchar(10) [not null]
+  CREATED_AT timestamptz [not null]
+  UPDATED_AT timestamptz
+  EFFECTIVE_DATE timestamptz [not null]
+  EXPIRATION_DATE timestamptz
+  SOC_TYPE varchar(1) [not null, note: 'P / S / O / D']
+  PROFILE varchar(10)
+
+  Indexes {
+    CONTRACT_ID [name: 'idx_pam_service_agreement_contract_id']
+    SOC [name: 'idx_pam_service_agreement_soc']
+  }
+}
+
+Table PAM_CLIENT_PROFILE_HISTORY {
+  ID bigint [pk, not null]
+  CLIENT_ID bigint [not null, ref: > PAM_CLIENT.ID]
+  PROFILE varchar(10)
+  STATUS varchar(1) [note: 'A - активный, H - исторический']
+  EFFECTIVE_DATE timestamptz
+  EXPIRATION_DATE timestamptz
+
+  Indexes {
+    (CLIENT_ID, STATUS) [name: 'idx_pam_client_profile_history_client_status']
+  }
+
+  Note: 'В источнике описан частичный unique: не более одной записи со STATUS = A на клиента'
+}
+
+Table PAM_CLAIM {
+  ID bigint [pk, not null]
+  CLIENT_ID bigint [not null, ref: > PAM_CLIENT.ID]
+  CREATED_AT timestamptz [not null]
+  UPDATED_AT timestamptz
+  PORTED_MSISDN varchar(11) [not null, unique]
+  MNP_CLAIM_ID varchar(20) [not null, unique]
+
+  Indexes {
+    PORTED_MSISDN [name: 'idx_pam_claim_ported_msisdn']
+    MNP_CLAIM_ID [name: 'idx_pam_claim_mnp_claim_id']
+  }
+}
+
+Table PAM_SERVICE_PARAMETERS {
+  ID bigint [pk, not null]
+  BASKET_ID bigint [not null, ref: > PAM_BASKET.ID]
+  CREATED_AT timestamptz [not null]
+  UPDATED_AT timestamptz
+  SOC varchar [not null]
+  SOC_TYPE varchar [not null, note: 'Тип SOC по описанию']
+  FEATURE varchar [not null]
+  FEATURE_PARAM jsonb
+
+  Indexes {
+    BASKET_ID [name: 'idx_pam_service_parameters_basket_id']
+    SOC [name: 'idx_pam_service_parameters_soc']
+  }
+}
+
+//////////////////////////////
+// СПРАВОЧНИКИ
+//////////////////////////////
+
+Table PAM_MNP_REGION_DICTIONARY {
+  ID bigint [pk, not null, note: 'ID_REC']
+  ID_MNP_REGION integer [not null, note: 'Код региона MNP']
+  NAME varchar(255) [not null]
+  NUMBER varchar(2) [not null, note: 'Числовой номер региона']
+  STATUS smallint [not null, note: '1 - активен, 0 - не активен']
+  DT_START timestamptz [not null]
+  DT_STOP timestamptz [not null]
+
+  Indexes {
+    ID_MNP_REGION [name: 'idx_pam_mnp_region_dictionary_id_mnp_region']
+    NUMBER [name: 'idx_pam_mnp_region_dictionary_number']
+    STATUS [name: 'idx_pam_mnp_region_dictionary_status']
+    (ID_MNP_REGION, STATUS) [name: 'idx_pam_mnp_region_dictionary_region_status']
+  }
+
+  Note: 'В источнике есть открытый вопрос: может ли быть несколько записей по одному региону в разных статусах/периодах'
+}
+
+Table PAM_OUTLET_DICTIONARY {
+  ID bigint [pk, not null]
+  BRANCH_MNEMONICS varchar(4)
+  DEALER_CODE varchar(4) [not null]
+  OUTLET varchar(7) [not null]
+  SALESPERSON varchar(8) [not null]
+  MARKET_CODE varchar(3) [not null]
+  ID_MNP_REGION integer [not null, note: 'Логическая ссылка на PAM_MNP_REGION_DICTIONARY.ID_MNP_REGION']
+  REGION varchar(255)
+  CITY varchar(50)
+  LOGICAL_HLR varchar(5)
+  DEFAULT_BRANCH boolean
+  DEFAULT_MARKET_CODE boolean
+  SALES_AVAILIABLE boolean
+
+  Indexes {
+    BRANCH_MNEMONICS [name: 'idx_pam_outlet_dictionary_branch_mnemonics']
+    OUTLET [name: 'idx_pam_outlet_dictionary_outlet']
+    MARKET_CODE [name: 'idx_pam_outlet_dictionary_market_code']
+    ID_MNP_REGION [name: 'idx_pam_outlet_dictionary_id_mnp_region']
+    (MARKET_CODE, DEFAULT_BRANCH) [name: 'idx_pam_outlet_dictionary_market_default_branch']
+    (ID_MNP_REGION, DEFAULT_MARKET_CODE) [name: 'idx_pam_outlet_dictionary_region_default_market']
+  }
+
+  Note: '''
+    Формального FK на PAM_MNP_REGION_DICTIONARY.ID_MNP_REGION не ставлю,
+    потому что в источнике не зафиксирована уникальность ID_MNP_REGION как отдельного ключа.
+    Это логическая связь.
+  '''
+}
+
+Table PAM_MCC_DICTIONARY {
+  ID bigint [pk, not null]
+  ID_MASTER_TYPE integer [not null, note: '14 - услуга периодическая, 18 - расширение']
+  MASTER_TYPE varchar(255) [not null]
+  ID_MASTER_INST integer [not null]
+  MASTER_INST_IDENT varchar(255) [not null]
+  MASTER_INST_NAME varchar(255) [not null]
+  MCC varchar(5) [not null]
+
+  Indexes {
+    ID_MASTER_TYPE [name: 'idx_pam_mcc_dictionary_master_type']
+    ID_MASTER_INST [name: 'idx_pam_mcc_dictionary_master_inst']
+    MASTER_INST_IDENT [name: 'idx_pam_mcc_dictionary_master_inst_ident']
+    MCC [name: 'idx_pam_mcc_dictionary_mcc']
+  }
+
+  Note: 'Справочник используется для маппинга сущностей/услуг на MCC; прямой FK на операционные таблицы в источнике не задан'
+}
+
+Table PAM_MNP_OPERATOR {
+  OPERATOR_ID bigint [pk, not null, note: 'ID_MNP_OPERATOR']
+  REGION_CODE varchar(255)
+  ALLOWED boolean
+  SOURCE_FILE varchar(255)
+  CODE varchar(255)
+  PUBLIC_KEY text
+  PUBLIC_KEY_MD5 varchar(32)
+  MOBILE_NETWORK_CODE varchar(31)
+  PUBLIC_KEY_EXPIRATION timestamptz
+  TITLE varchar(255)
+  ROUTE varchar(31)
+  CREATED_AT timestamptz
+  UPDATED_AT timestamptz
+
+  Indexes {
+    CODE [name: 'idx_pam_mnp_operator_code']
+    REGION_CODE [name: 'idx_pam_mnp_operator_region_code']
+    ALLOWED [name: 'idx_pam_mnp_operator_allowed']
+    PUBLIC_KEY_MD5 [name: 'idx_pam_mnp_operator_public_key_md5']
+    MOBILE_NETWORK_CODE [name: 'idx_pam_mnp_operator_mnc']
+  }
+}
