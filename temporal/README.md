@@ -255,6 +255,17 @@ npm --version
 - [Temporal UI Guide](https://docs.temporal.io/ui)
 - [Temporal GitHub](https://github.com/temporalio)
 
+## 🔗 Связанные разделы
+
+- [API — проектирование REST API](../API/README.md)
+- [Database — моделирование БД](../Database/README.md)
+- [Structurizr — C4-диаграммы архитектуры](../Structurizr/README.md)
+- [Sequence Plant UML — диаграммы последовательности](../Sequence%20Plant%20UML/README.md)
+
+---
+
+*Последнее обновление: Май 2026*
+
 ---
 
 **Начните изучение Temporal с запуска PowerShell демо и посмотрите как workflow оркестрирует процесс обработки заказа!**

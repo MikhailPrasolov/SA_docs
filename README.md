@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Status: Активный](https://img.shields.io/badge/Status-Активный-green.svg)](https://github.com)
 
-Репозиторий **SA_docs** содержит практические материалы для системных аналитиков, архитекторов и разработчиков: шаблоны API, модели БД, архитектурные диаграммы, а также демо-проект с оркестрацией процессов на Temporal.
+Репозиторий **SA_docs** содержит практические материалы для системных аналитиков, архитекторов и разработчиков: шаблоны API, модели БД, архитектурные диаграммы, инструкции по настройке инструментов, а также демо-проекты с оркестрацией процессов на Temporal и AI-агентами.
 
 ---
 
@@ -17,6 +17,9 @@
 | 📊 **Sequence** | Sequence-диаграммы (PlantUML) | [`Sequence Plant UML/README.md`](Sequence%20Plant%20UML/README.md) |
 | 🏗 **Structurizr** | C4-диаграммы и DSL | [`Structurizr/README.md`](Structurizr/README.md) |
 | ⏱ **Temporal** | Демо-проект оркестрации workflow | [`temporal/README.md`](temporal/README.md) |
+| 📖 **Instructions** | Инструкции по настройке инструментов | [`Instructions/README.md`](Instructions/README.md) |
+| 🤖 **demo_AI** | Демо-проекты AI-агентов | [`demo_AI/README.md`](demo_AI/README.md) |
+| 🔍 **Project_obscence** | Анализ нецензурных выражений | [`Project_obscence/README.md`](Project_obscence/README.md) |
 
 ---
 
@@ -59,6 +62,21 @@ SA_docs/
 │   ├── QUICK_START.md          # Быстрый старт
 │   ├── src/                    # Исходный код
 │   └── *.html                  # Визуальные демо
+│
+├── Instructions/               # 📖 Инструкции по настройке инструментов
+│   ├── README.md               # Обзор инструкций
+│   ├── Гайд MCP.md             # Настройка MCP-серверов Kilo Code
+│   └── Obsidian Second Brain Setup.md  # Настройка Второго Мозга в Obsidian
+│
+├── demo_AI/                    # 🤖 Демо-проекты AI-агентов
+│   ├── README.md               # Обзор демо
+│   ├── obscene_demo.html       # Демо детекции нецензурной лексики
+│   ├── projects_presentation.html  # Презентация проектов
+│   └── presentation_plan.md    # План презентации
+│
+├── Project_obscence/           # 🔍 Анализ нецензурных выражений
+│   ├── README.md               # Описание проекта
+│   └── *.py                    # Скрипты анализа
 │
 ├── .gitignore                  # Исключения для Git
 └── README.md                    # Этот файл
@@ -164,6 +182,51 @@ SA_docs/
 
 ---
 
+### 📖 Instructions — Инструкции по настройке
+
+> Пошаговые руководства по настройке инструментов и окружения
+
+**Для кого:** все, кто настраивает рабочее окружение
+
+**Что внутри:**
+- Настройка MCP-серверов для Kilo Code (Context7, GitLab, Jira, Confluence)
+- Установка и настройка Obsidian Second Brain
+- Интеграция Obsidian с Kilo Code через MCP
+
+**Начать изучение:** [`Instructions/README.md`](Instructions/README.md)
+
+---
+
+### 🤖 demo_AI — Демо-проекты AI-агентов
+
+> Примеры использования AI-агентов для решения практических задач
+
+**Для кого:** разработчики, аналитики
+
+**Что внутри:**
+- Демо детекции нецензурной лексики
+- Презентация проектов
+- Планы презентаций
+
+**Начать изучение:** [`demo_AI/README.md`](demo_AI/README.md)
+
+---
+
+### 🔍 Project_obscence — Анализ нецензурных выражений
+
+> Сравнение моделей детекции нецензурной лексики (GPT5, DeepSeek, AI Agent)
+
+**Для кого:** аналитики данных, ML-инженеры
+
+**Что внутри:**
+- Скрипты анализа на Python
+- Сравнение трёх моделей детекции
+- Статистика и отчёты
+
+**Начать изучение:** [`Project_obscence/README.md`](Project_obscence/README.md)
+
+---
+
 ## 🚀 Быстрый старт
 
 ### 1) Изучение материалов (без запуска кода)
@@ -175,6 +238,7 @@ SA_docs/
 | 3 | Архитектура | [`Structurizr/README.md`](Structurizr/README.md) |
 | 4 | Sequence | [`Sequence Plant UML/README.md`](Sequence%20Plant%20UML/README.md) |
 | 5 | AI агенты | [`AI агенты/README.md`](AI%20агенты/README.md) |
+| 6 | Инструкции | [`Instructions/README.md`](Instructions/README.md) |
 
 ### 2) Запуск Temporal-демо
 
@@ -205,6 +269,7 @@ npm run worker
 - раздел по интеграционным контрактам и событиям
 - примеры BPMN/UML activity/state-диаграмм
 - расширение практических кейсов в `temporal/`
+- интеграция SA_docs с Obsidian Second Brain через MCP
 
 ---
 
@@ -213,3 +278,7 @@ npm run worker
 - Автор: Михаил Прасолов
 - Telegram: [@MikhailPrasolov](https://t.me/MikhailPrasolov)
 - Канал: [t.me/systemananalytics](https://t.me/systemananalytics)
+
+---
+
+*Последнее обновление: Май 2026*

@@ -121,10 +121,16 @@ end
 
 ---
 
+## 🔗 Связанные разделы
+
+- [Structurizr — C4-диаграммы архитектуры](../Structurizr/README.md)
+- [API — проектирование REST API](../API/README.md)
+- [Гайд MCP — Context7 для PlantUML](../Instructions/Гайд%20MCP.md)
+
 ## 📬 Контакты
 
 - Автор: Михаил Прасолов
 - Telegram: [@MikhailPrasolov](https://t.me/MikhailPrasolov)
 - Канал: [t.me/systemananalytics](https://t.me/systemananalytics)
 
-*Последнее обновление: Март 2026*
+*Последнее обновление: Май 2026*

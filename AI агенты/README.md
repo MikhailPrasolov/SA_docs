@@ -70,6 +70,11 @@
 
 ---
 
+## 🔗 Связанные разделы
+
+- [Инструкции по настройке инструментов](../Instructions/README.md) — настройка MCP, Obsidian Second Brain
+- [Гайд MCP](../Instructions/Гайд%20MCP.md) — полное руководство по MCP-серверам Kilo Code
+
 ## 📚 Ресурсы
 
 1. [DeepSeek Platform](https://platform.deepseek.com/)
@@ -88,4 +93,4 @@
 
 ---
 
-*Последнее обновление: Март 2026*
+*Последнее обновление: Май 2026*
