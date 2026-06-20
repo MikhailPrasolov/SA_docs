@@ -1,6 +1,14 @@
 # 🤖 demo_AI — Демо-проекты AI-агентов
 
+> **Статус:** `seed` • **Уровень:** `средний` • **Для:** разработчиков, аналитиков
+>
 > Примеры использования AI-агентов для решения практических задач: детекция нецензурной лексики, презентации проектов.
+
+## 🆕 Что нового
+
+| Дата | Изменение |
+|------|-----------|
+| 2026-06 | Добавлены метаданные; усилены cross-refs с AI агенты и Project_obscence |
 
 ## 📋 Содержание
 
@@ -56,12 +64,20 @@ start projects_presentation.html
 
 ---
 
-## 📬 Контакты
+## 🔗 Связанные разделы
 
-- 🔗 **Контакты автора**
-  • TG: [@MikhailPrasolov](https://t.me/MikhailPrasolov)
-  • Канал: [t.me/systemananalytics](https://t.me/systemananalytics)
+- [AI агенты — материалы по AI/LLM](../AI%20агенты/README.md) — теория и настройка
+- [Project_obscence — анализ нецензурной лексики](../Project_obscence/README.md) — сравнение моделей
+- [Instructions — настройка инструментов](../Instructions/README.md) — инфраструктура
 
 ---
 
-*Последнее обновление: Май 2026*
+## 📬 Контакты
+
+- **Автор:** Михаил Прасолов
+- **Telegram:** [@MikhailPrasolov](https://t.me/MikhailPrasolov)
+- **Канал:** [t.me/systemananalytics](https://t.me/systemananalytics)
+
+---
+
+*Последнее обновление: Июнь 2026*

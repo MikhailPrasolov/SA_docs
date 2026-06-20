@@ -1,25 +1,40 @@
-# 📘 SA_docs — база знаний по системной аналитике и архитектуре
+# 📘 SA_docs — База знаний по системной аналитике и архитектуре
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Status: Активный](https://img.shields.io/badge/Status-Активный-green.svg)](https://github.com)
+[![Status: Активный](https://img.shields.io/badge/Status-Active-green.svg)]()
+[![Updated: Июнь 2026](https://img.shields.io/badge/Updated-Июнь%202026-blue.svg)]()
 
-Репозиторий **SA_docs** содержит практические материалы для системных аналитиков, архитекторов и разработчиков: шаблоны API, модели БД, архитектурные диаграммы, инструкции по настройке инструментов, а также демо-проекты с оркестрацией процессов на Temporal и AI-агентами.
+> **SA_docs** — коллекция практических материалов для системных аналитиков, архитекторов и разработчиков: шаблоны API, модели БД, архитектурные диаграммы, инструкции по настройке инструментов, демо-проекты с оркестрацией процессов на Temporal и AI-агентами.
 
 ---
 
-## 🚀 Быстрый переход
+## 🆕 Что нового
 
-| Раздел | Описание | 📁 Путь |
-|--------|----------|---------|
-| 🛠 **API** | Проектирование и документирование REST API | [`API/README.md`](API/README.md) |
-| 🗄 **Database** | Моделирование БД, DBML, примеры схем | [`Database/README.md`](Database/README.md) |
-| 🤖 **AI агенты** | Настройка и использование LLM (DeepSeek) | [`AI агенты/README.md`](AI%20агенты/README.md) |
-| 📊 **Sequence** | Sequence-диаграммы (PlantUML) | [`Sequence Plant UML/README.md`](Sequence%20Plant%20UML/README.md) |
-| 🏗 **Structurizr** | C4-диаграммы и DSL | [`Structurizr/README.md`](Structurizr/README.md) |
-| ⏱ **Temporal** | Демо-проект оркестрации workflow | [`temporal/README.md`](temporal/README.md) |
-| 📖 **Instructions** | Инструкции по настройке инструментов | [`Instructions/README.md`](Instructions/README.md) |
-| 🤖 **demo_AI** | Демо-проекты AI-агентов | [`demo_AI/README.md`](demo_AI/README.md) |
-| 🔍 **Project_obscence** | Анализ нецензурных выражений | [`Project_obscence/README.md`](Project_obscence/README.md) |
+| Дата | Изменение |
+|------|-----------|
+| 2026-06 | Прокачка всех README: единый стиль, статусная модель, learning paths |
+| 2026-05 | Sequence Plant UML: обновление под практики 2025 |
+| 2026-05 | Instructions: гайд MCP и Obsidian Second Brain Setup |
+| 2026-04 | temporal: добавлены visual-demo и PowerShell версии |
+| 2026-03 | Database: добавлены схемы Alfa, Alfa1 |
+
+---
+
+## 🧭 Навигация (MOC)
+
+| # | Раздел | Статус | Уровень | Описание | 📁 |
+|---|--------|--------|---------|----------|-----|
+| 1 | 🛠 **API** | `evergreen` | ★☆☆ | Проектирование и документирование REST API | [`→`](API/README.md) |
+| 2 | 🗄 **Database** | `evergreen` | ★★☆ | Моделирование БД, DBML, примеры схем | [`→`](Database/README.md) |
+| 3 | 🤖 **AI агенты** | `growing` | ★★☆ | Настройка и использование LLM (DeepSeek) | [`→`](AI%20агенты/README.md) |
+| 4 | 📊 **Sequence** | `evergreen` | ★☆☆ | Sequence-диаграммы PlantUML | [`→`](Sequence%20Plant%20UML/README.md) |
+| 5 | 🏗 **Structurizr** | `evergreen` | ★★☆ | C4-диаграммы и DSL | [`→`](Structurizr/README.md) |
+| 6 | ⏱ **Temporal** | `evergreen` | ★★★ | Демо-проект оркестрации workflow | [`→`](temporal/README.md) |
+| 7 | 📖 **Instructions** | `growing` | ★☆☆ | Инструкции по настройке инструментов | [`→`](Instructions/README.md) |
+| 8 | 🤖 **demo_AI** | `seed` | ★★☆ | Демо-проекты AI-агентов | [`→`](demo_AI/README.md) |
+| 9 | 🔍 **Project_obscence** | `seed` | ★★☆ | Анализ нецензурных выражений | [`→`](Project_obscence/README.md) |
+
+> **Легенда:** `seed` → `growing` → `evergreen` — зрелость материала. ★☆☆ — базовый, ★★☆ — средний, ★★★ — продвинутый.
 
 ---
 
@@ -27,220 +42,209 @@
 
 ```text
 SA_docs/
-├── API/                        # 🛠 Шаблоны и рекомендации по API
-│   ├── README.md               # Гайд по проектированию API
+├── API/                        # 🛠 Шаблоны и рекомендации по REST API
+│   ├── README.md
 │   ├── Шаблон OPENAPI 3.0.1.yaml
 │   └── Шаблон Swagger 2.0.yaml
 │
 ├── Database/                   # 🗄 Модели БД (DBML) и документация
-│   ├── README.md               # Рекомендации по документированию БД
-│   ├── Пример БД.dbml          # Учебный пример схемы
-│   ├── Магазины_БД.dbml
-│   └── Магазины_БД_документация.md
+│   ├── README.md
+│   ├── Пример БД.dbml          # Учебный пример микросервиса пользователей
+│   ├── Магазины_БД.dbml        # Схема розничной сети
+│   ├── Магазины_БД_документация.md
+│   ├── Alfa.dbml               # Схема Alfa (добавлено)
+│   └── Alfa1.dbml              # Схема Alfa1 (добавлено)
 │
 ├── AI агенты/                  # 🤖 Материалы по AI/LLM
-│   ├── README.md               # Обзор материалов
+│   ├── README.md
 │   ├── deepseek_reasoner_kilocode_setup.md
 │   ├── deepseek_comparison.md
 │   └── deepseek_chat_vs_reasoner_comparison.md
 │
 ├── Sequence Plant UML/         # 📊 Примеры и шаблоны Sequence-диаграмм
-│   ├── README.md               # Актуализированные регламенты
+│   ├── README.md
 │   ├── Шаблон Sequence .wsd
 │   ├── Пример Sequence.wsd
 │   ├── Пример Sequence - Оплата заказа.wsd
 │   └── Пример Sequence - Асинхронная интеграция.wsd
 │
 ├── Structurizr/                # 🏗 C4/Structurizr DSL
-│   ├── README.md               # Основы C4/Structurizr
-│   └── workspace.dsl           # Рабочий пример
+│   ├── README.md
+│   └── workspace.dsl
 │
-├── temporal/                   # ⏱ Демо-проект Temporal
-│   ├── README.md               # Описание проекта
+├── temporal/                   # ⏱ Демо-проект Temporal OMS
+│   ├── README.md
 │   ├── CONCEPTS.md             # Концепции Temporal
 │   ├── INSTALL.md              # Установка
-│   ├── QUICK_START.md          # Быстрый старт
-│   ├── src/                    # Исходный код
-│   └── *.html                  # Визуальные демо
+│   ├── QUICK_RUN.md            # Быстрый старт
+│   ├── DEMO_COMPARISON.md      # Сравнение вариантов демо
+│   ├── src/                    # Исходный код (TypeScript)
+│   └── *.html / *.ps1          # Визуальные демо + PowerShell
 │
 ├── Instructions/               # 📖 Инструкции по настройке инструментов
-│   ├── README.md               # Обзор инструкций
-│   ├── Гайд MCP.md             # Настройка MCP-серверов Kilo Code
-│   └── Obsidian Second Brain Setup.md  # Настройка Второго Мозга в Obsidian
+│   ├── README.md
+│   ├── Гайд MCP.md             # MCP-серверы Kilo Code
+│   └── Obsidian Second Brain Setup.md
 │
 ├── demo_AI/                    # 🤖 Демо-проекты AI-агентов
-│   ├── README.md               # Обзор демо
-│   ├── obscene_demo.html       # Демо детекции нецензурной лексики
-│   ├── projects_presentation.html  # Презентация проектов
-│   └── presentation_plan.md    # План презентации
+│   ├── README.md
+│   ├── obscene_demo.html       # Детекция нецензурной лексики
+│   ├── projects_presentation.html
+│   └── presentation_plan.md
 │
 ├── Project_obscence/           # 🔍 Анализ нецензурных выражений
-│   ├── README.md               # Описание проекта
-│   └── *.py                    # Скрипты анализа
+│   ├── README.md
+│   ├── *.csv                   # Исходные данные
+│   └── *.py                    # Скрипты анализа + сравнение моделей
 │
-├── .gitignore                  # Исключения для Git
-└── README.md                    # Этот файл
+├── .gitignore
+└── README.md                    # Настоящий файл (MOC-навигация)
 ```
 
 ---
 
-## 🧭 Навигация по разделам
+## 🧭 Детальная навигация по разделам
 
-### 🛠 API — Проектирование и документация
-
-> Полное руководство по созданию качественных REST/gRPC API
+<details>
+<summary><b>🛠 API</b> — Проектирование и документирование REST API <code>evergreen</code> • <code>базовый</code></summary>
 
 **Для кого:** системные аналитики, разработчики
 
-**Что внутри:**
-- Базовые принципы RESTful API
-- Структура эндпоинтов и примеры запросов
-- Документирование (OpenAPI, Swagger)
-- Чек-лист проектирования
-- Использование Context7 для актуальной документации
+**Что внутри:** принципы RESTful, структура эндпоинтов, OpenAPI/Swagger шаблоны, чек-лист проектирования, примеры запросов/ответов, Context7-интеграция
 
-**Начать изучение:** [`API/README.md`](API/README.md)
+**Файлы:** 2 шаблона (OpenAPI 3.0.1, Swagger 2.0)
 
----
+➡️ [`API/README.md`](API/README.md)
+</details>
 
-### 🗄 Database — Моделирование и документация
-
-> Проектирование и документирование схем баз данных
+<details>
+<summary><b>🗄 Database</b> — Моделирование БД и DBML <code>evergreen</code> • <code>средний</code></summary>
 
 **Для кого:** системные аналитики, архитекторы БД
 
-**Что внутри:**
-- Примеры моделей (микросервис пользователей, сеть магазинов)
-- Форматы докутирования (DBML)
-- Лучшие практики (нормализация, именование)
-- Примеры SQL-запросов
+**Что внутри:** примеры моделей (микросервис пользователей, сеть магазинов, Alfa), DBML-формат, SQL-запросы, best practices (нормализация, именование)
 
-**Начать изучение:** [`Database/README.md`](Database/README.md)
+**Файлы:** 4 DBML-схемы + документация
 
----
+➡️ [`Database/README.md`](Database/README.md)
+</details>
 
-### 🤖 AI агенты — AI/LLM для системного анализа
-
-> Настройка и использование AI-агентов в работе
+<details>
+<summary><b>🤖 AI агенты</b> — DeepSeek и LLM <code>growing</code> • <code>средний</code></summary>
 
 **Для кого:** все, кто использует AI в работе
 
-**Что внутри:**
-- Настройка DeepSeek Reasoner в Kilo Code
-- Сравнение моделей Chat vs Reasoner
-- Оптимальные настройки для разных задач
+**Что внутри:** настройка DeepSeek Reasoner в Kilo Code, сравнение Chat vs Reasoner, оптимальные параметры для разных задач
 
-**Начать изучение:** [`AI агенты/README.md`](AI%20агенты/README.md)
+**Файлы:** 3 гайда + сравнения
 
----
+➡️ [`AI агенты/README.md`](AI%20агенты/README.md)
+</details>
 
-### 📊 Sequence Plant UML — Диаграммы последовательности
-
-> Актуализированные регламенты по Sequence-диаграммам
+<details>
+<summary><b>📊 Sequence Plant UML</b> — Sequence-диаграммы <code>evergreen</code> • <code>базовый</code></summary>
 
 **Для кого:** системные аналитики, архитекторы
 
-**Что внутри:**
-- Единый стиль диаграмм
-- Обработка ошибок, идемпотентность
-- Async-сценарии (Kafka/outbox)
-- Примеры промптов с Context7
+**Что внутри:** единый стиль, обработка ошибок, идемпотентность, async-сценарии (Kafka/outbox), промпты с Context7, шаблон + 3 примера
 
-**Начать изучение:** [`Sequence Plant UML/README.md`](Sequence%20Plant%20UML/README.md)
+**Файлы:** шаблон + 3 примера .wsd
 
----
+➡️ [`Sequence Plant UML/README.md`](Sequence%20Plant%20UML/README.md)
+</details>
 
-### 🏗 Structurizr — C4-диаграммы
-
-> C4-модель и Structurizr DSL для документирования архитектуры
+<details>
+<summary><b>🏗 Structurizr</b> — C4-диаграммы и DSL <code>evergreen</code> • <code>средний</code></summary>
 
 **Для кого:** архитекторы, системные аналитики
 
-**Что внутри:**
-- Что такое C4-модель
-- Синтаксис DSL
-- Типы диаграмм (Context, Container, Component)
-- Рабочие примеры
+**Что внутри:** C4-модель (Context → Container → Component), синтаксис Structurizr DSL, best practices, полный пример интернет-магазина
 
-**Начать изучение:** [`Structurizr/README.md`](Structurizr/README.md)
+**Файлы:** workspace.dsl
 
----
+➡️ [`Structurizr/README.md`](Structurizr/README.md)
+</details>
 
-### ⏱ Temporal — Оркестрация процессов
-
-> Демо-проект для изучения Temporal (OMS пример)
+<details>
+<summary><b>⏱ Temporal</b> — Оркестрация workflow <code>evergreen</code> • <code>продвинутый</code></summary>
 
 **Для кого:** разработчики, архитекторы
 
-**Что внутри:**
-- Полная документация по Temporal
-- Несколько вариантов запуска демо
-- Исходный код на TypeScript
-- Визуальные демо в браузере
+**Что внутри:** полная документация Temporal, 3 варианта запуска (PowerShell, визуальный, полный с сервером), TypeScript-код OMS, архитектура workflow
 
-**Начать изучение:** [`temporal/README.md`](temporal/README.md)
+**Файлы:** src/ + 3 демо + 4 гайда
 
----
+➡️ [`temporal/README.md`](temporal/README.md)
+</details>
 
-### 📖 Instructions — Инструкции по настройке
-
-> Пошаговые руководства по настройке инструментов и окружения
+<details>
+<summary><b>📖 Instructions</b> — Настройка инструментов <code>growing</code> • <code>базовый</code></summary>
 
 **Для кого:** все, кто настраивает рабочее окружение
 
-**Что внутри:**
-- Настройка MCP-серверов для Kilo Code (Context7, GitLab, Jira, Confluence)
-- Установка и настройка Obsidian Second Brain
-- Интеграция Obsidian с Kilo Code через MCP
+**Что внутри:** гайд MCP-серверов Kilo Code (Context7, GitLab, Jira, Confluence), установка Obsidian Second Brain, интеграция с Kilo Code
 
-**Начать изучение:** [`Instructions/README.md`](Instructions/README.md)
+**Файлы:** 2 гайда + README
 
----
+➡️ [`Instructions/README.md`](Instructions/README.md)
+</details>
 
-### 🤖 demo_AI — Демо-проекты AI-агентов
-
-> Примеры использования AI-агентов для решения практических задач
+<details>
+<summary><b>🤖 demo_AI</b> — Демо AI-агентов <code>seed</code> • <code>средний</code></summary>
 
 **Для кого:** разработчики, аналитики
 
-**Что внутри:**
-- Демо детекции нецензурной лексики
-- Презентация проектов
-- Планы презентаций
+**Что внутри:** HTML-демо детекции нецензурной лексики, презентация проектов, план презентации
 
-**Начать изучение:** [`demo_AI/README.md`](demo_AI/README.md)
+**Файлы:** 2 HTML + 1 MD
 
----
+➡️ [`demo_AI/README.md`](demo_AI/README.md)
+</details>
 
-### 🔍 Project_obscence — Анализ нецензурных выражений
-
-> Сравнение моделей детекции нецензурной лексики (GPT5, DeepSeek, AI Agent)
+<details>
+<summary><b>🔍 Project_obscence</b> — Анализ нецензурных выражений <code>seed</code> • <code>средний</code></summary>
 
 **Для кого:** аналитики данных, ML-инженеры
 
-**Что внутри:**
-- Скрипты анализа на Python
-- Сравнение трёх моделей детекции
-- Статистика и отчёты
+**Что внутри:** Python-скрипты, сравнение 3 моделей (GPT5, DeepSeek, AI Agent), статистика, отчёты
 
-**Начать изучение:** [`Project_obscence/README.md`](Project_obscence/README.md)
+**Файлы:** 5 Python-скриптов + 3 CSV-набора + README
+
+➡️ [`Project_obscence/README.md`](Project_obscence/README.md)
+</details>
+
+---
+
+## 🧭 Как использовать: learning path
+
+Выберите свой трек в зависимости от цели:
+
+| Трек | Маршрут | Результат |
+|------|---------|-----------|
+| 🆕 **Новичок** | API → Database → Sequence | Освоите базовые артефакты аналитика |
+| 🏗 **Архитектор** | Structurizr → Sequence → Temporal | Научитесь проектировать системы |
+| 🤖 **AI-практик** | AI агенты → Instructions → demo_AI | Настроите AI-агентов в работу |
+| ⚡ **Full Stack** | Весь путь по порядку (1→9) | Полный набор инструментов |
+
+**Рекомендуемый порядок изучения:**
+1. 🛠 **API** — основы проектирования
+2. 🗄 **Database** — моделирование данных
+3. 🏗 **Structurizr** — архитектурные диаграммы
+4. 📊 **Sequence** — детализация сценариев
+5. 🤖 **AI агенты** — AI в помощь аналитику
+6. 📖 **Instructions** — настройка окружения
+7. ⏱ **Temporal** — оркестрация процессов
+8. 🧪 **demo_AI + Project_obscence** — практические кейсы
 
 ---
 
 ## 🚀 Быстрый старт
 
-### 1) Изучение материалов (без запуска кода)
+### 📖 Изучение материалов
 
-| Порядок | Раздел | Файл |
-|---------|--------|------|
-| 1 | API | [`API/README.md`](API/README.md) |
-| 2 | Database | [`Database/README.md`](Database/README.md) |
-| 3 | Архитектура | [`Structurizr/README.md`](Structurizr/README.md) |
-| 4 | Sequence | [`Sequence Plant UML/README.md`](Sequence%20Plant%20UML/README.md) |
-| 5 | AI агенты | [`AI агенты/README.md`](AI%20агенты/README.md) |
-| 6 | Инструкции | [`Instructions/README.md`](Instructions/README.md) |
+Выберите трек в секции [learning path](#-как-использовать-learning-path) выше. Каждый раздел самодостаточен — начать можно с любого.
 
-### 2) Запуск Temporal-демо
+### ⏱ Запуск Temporal-демо
 
 ```bash
 cd temporal
@@ -248,37 +252,44 @@ npm install
 npm run worker
 ```
 
-Для полного сценария с локальным сервером Temporal используйте инструкции в [`temporal/INSTALL.md`](temporal/INSTALL.md) и [`temporal/QUICK_START.md`](temporal/QUICK_START.md).
+Для полного сценария: [`temporal/INSTALL.md`](temporal/INSTALL.md) • [`temporal/QUICK_RUN.md`](temporal/QUICK_RUN.md) • [`temporal/DEMO_COMPARISON.md`](temporal/DEMO_COMPARISON.md)
 
 ---
 
-## 🤝 Как вносить изменения
+## 🤝 Внесение изменений
 
-- Обновляйте разделы и шаблоны через Pull Request
-- Если добавляете новый раздел, сразу добавьте:
-  1. `README.md` внутри раздела
-  2. краткое описание в этом корневом `README.md`
-- Проверяйте актуальность ссылок и названий файлов после переименований
+1. **Форкните** репозиторий
+2. **Создайте ветку** с описанием изменения
+3. **Обновите** README раздела и, если нужно, корневой README
+4. **Создайте Pull Request** с описанием что и почему изменилось
+
+**Правила:**
+- Новый раздел → README.md внутри + ссылка в корневом README
+- Переименование файла → проверьте ссылки во всех README
+- Обновление практик → укажите дату в `# Что нового` раздела
 
 ---
 
 ## 📌 Дальнейшее развитие
 
 Потенциальные направления:
-- шаблоны по требованиям (BRD/SRS/User Story/Use Case)
-- раздел по интеграционным контрактам и событиям
-- примеры BPMN/UML activity/state-диаграмм
-- расширение практических кейсов в `temporal/`
-- интеграция SA_docs с Obsidian Second Brain через MCP
+- 📋 шаблоны требований (BRD, SRS, User Story, Use Case)
+- 🔄 раздел по интеграционным контрактам и событиям
+- 📊 BPMN/UML activity/state-диаграммы
+- 🧪 расширение практических кейсов в `temporal/`
+- 🔗 интеграция SA_docs с Obsidian Second Brain через MCP
+- 🤖 автоматизация ревью артефактов через AI-агентов
 
 ---
 
 ## 📬 Контакты
 
-- Автор: Михаил Прасолов
-- Telegram: [@MikhailPrasolov](https://t.me/MikhailPrasolov)
-- Канал: [t.me/systemananalytics](https://t.me/systemananalytics)
+- **Автор:** Михаил Прасолов
+- **Telegram:** [@MikhailPrasolov](https://t.me/MikhailPrasolov)
+- **Канал:** [t.me/systemananalytics](https://t.me/systemananalytics) — системная аналитика, архитектура, AI-агенты
 
 ---
 
-*Последнее обновление: Май 2026*
+> *Репозиторий развивается как публичная база знаний. Если нашли ошибку или хотите дополнить — открывайте Issue или PR!*
+
+*Последнее обновление: Июнь 2026*

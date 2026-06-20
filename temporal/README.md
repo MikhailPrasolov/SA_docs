@@ -1,8 +1,16 @@
-# Temporal Demo - Система управления заказами (OMS)
+# ⏱ Temporal Demo — Система управления заказами (OMS)
 
 ![Temporal Logo](https://temporal.io/logo.svg)
 
-Демо-проект для изучения **Temporal** - платформы для оркестрации workflow, на примере системы управления заказами (Order Management System).
+> **Статус:** `evergreen` • **Уровень:** `продвинутый` • **Для:** разработчиков, архитекторов
+>
+> Демо-проект для изучения **Temporal** — платформы для оркестрации workflow, на примере системы управления заказами (Order Management System).
+
+## 🆕 Что нового
+
+| Дата | Изменение |
+|------|-----------|
+| 2026-06 | Добавлены метаданные; стандартизация футера |
 
 ## 🎯 О проекте
 
@@ -257,15 +265,24 @@ npm --version
 
 ## 🔗 Связанные разделы
 
-- [API — проектирование REST API](../API/README.md)
-- [Database — моделирование БД](../Database/README.md)
-- [Structurizr — C4-диаграммы архитектуры](../Structurizr/README.md)
-- [Sequence Plant UML — диаграммы последовательности](../Sequence%20Plant%20UML/README.md)
+- [API — проектирование REST API](../API/README.md) — API в workflow
+- [Database — моделирование БД](../Database/README.md) — данные для Temporal
+- [Structurizr — C4-диаграммы архитектуры](../Structurizr/README.md) — архитектура системы
+- [Sequence Plant UML — диаграммы последовательности](../Sequence%20Plant%20UML/README.md) — детализация сценариев
+- [AI агенты — AI/LLM для анализа](../AI%20агенты/README.md) — AI для генерации workflow
 
 ---
 
-*Последнее обновление: Май 2026*
+## 📬 Контакты
+
+- **Автор:** Михаил Прасолов
+- **Telegram:** [@MikhailPrasolov](https://t.me/MikhailPrasolov)
+- **Канал:** [t.me/systemananalytics](https://t.me/systemananalytics)
 
 ---
 
-**Начните изучение Temporal с запуска PowerShell демо и посмотрите как workflow оркестрирует процесс обработки заказа!**
+*Последнее обновление: Июнь 2026*
+
+---
+
+**🎯 Начните изучение Temporal с запуска PowerShell демо и посмотрите как workflow оркестрирует процесс обработки заказа!**

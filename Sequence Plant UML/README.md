@@ -1,6 +1,14 @@
 # 📊 Sequence Diagram (PlantUML) — актуализированный гайд
 
+> **Статус:** `evergreen` • **Уровень:** `базовый` • **Для:** аналитиков, архитекторов
+>
 > Раздел обновлён под практики 2025: единый стиль, явная обработка ошибок, идемпотентность, async-сценарии и подготовка к ревью архитектуры.
+
+## 🆕 Что нового
+
+| Дата | Изменение |
+|------|-----------|
+| 2026-06 | Добавлены метаданные; стандартизация футера |
 
 ## 📋 Что в папке
 
@@ -123,14 +131,20 @@ end
 
 ## 🔗 Связанные разделы
 
-- [Structurizr — C4-диаграммы архитектуры](../Structurizr/README.md)
-- [API — проектирование REST API](../API/README.md)
-- [Гайд MCP — Context7 для PlantUML](../Instructions/Гайд%20MCP.md)
+- [Structurizr — C4-диаграммы архитектуры](../Structurizr/README.md) — контекст диаграмм
+- [API — проектирование REST API](../API/README.md) — API-сценарии в Sequence
+- [Database — моделирование БД](../Database/README.md) — запросы к БД в Sequence
+- [Temporal — оркестрация workflow](../temporal/README.md) — долгоживущие сценарии
+- [Гайд MCP — Context7 для PlantUML](../Instructions/Гайд%20MCP.md) — AI для диаграмм
+
+---
 
 ## 📬 Контакты
 
-- Автор: Михаил Прасолов
-- Telegram: [@MikhailPrasolov](https://t.me/MikhailPrasolov)
-- Канал: [t.me/systemananalytics](https://t.me/systemananalytics)
+- **Автор:** Михаил Прасолов
+- **Telegram:** [@MikhailPrasolov](https://t.me/MikhailPrasolov)
+- **Канал:** [t.me/systemananalytics](https://t.me/systemananalytics)
 
-*Последнее обновление: Май 2026*
+---
+
+*Последнее обновление: Июнь 2026*

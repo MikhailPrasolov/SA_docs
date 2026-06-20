@@ -49,40 +49,60 @@
 
 | Файл | Описание |
 |------|----------|
-| [`Гайд MCP.md`](./Гайд%20MCP.md) | Настройка MCP-серверов Kilo Code (580 строк) |
-| [`Obsidian Second Brain Setup.md`](./Obsidian%20Second%20Brain%20Setup.md) | Настройка Второго Мозга в Obsidian (600+ строк) |
+| [`Гайд MCP.md`](./Гайд%20MCP.md) | Настройка MCP-серверов для Kilo Code |
+| [`Obsidian Second Brain Setup.md`](./Obsidian%20Second%20Brain%20Setup.md) | Настройка Второго Мозга в Obsidian |
+| [`AI_Kilo_Code_Setup.md`](./AI_Kilo_Code_Setup.md) | Полная конфигурация Kilo Code: MCP, провайдеры, разрешения |
+| [`Развертывание агентов для Kilo Code.md`](./Развертывание%20агентов%20для%20Kilo%20Code.md) | Агенты: primary + суб-агенты, контекстная система |
+| [`OpenCode Desktop Setup.md`](./OpenCode%20Desktop%20Setup.md) | Развертывание OpenCode Desktop |
+| [`handy-guide.md`](./handy-guide.md) | Локальная транскрипция речи Handy |
+| [`lm-studio-guide.md`](./lm-studio-guide.md) | Локальные LLM модели через LM Studio |
+| [`proxy-guide.md`](./proxy-guide.md) | SOCKS5-прокси для обхода блокировок |
+| [`transcribe-video-script.md`](./transcribe-video-script.md) | Транскрипция видео/аудио через faster-whisper |
+| [`transcribe-test-models.md`](./transcribe-test-models.md) | Сравнение моделей транскрипции |
 
 ---
 
 ## 🚀 Быстрый старт
 
-### 1) Настройка MCP-серверов
+### 1) Установка Kilo Code
 
 ```powershell
-cd "$env:USERPROFILE\.config\kilo"
-npm install mcp-jira-server
-npm install @atlassian-dc-mcp/confluence
+# VS Code: Ctrl+Shift+X → "Kilo Code" → Install Pre-Release Version
+```
+
+Подробнее: [`AI_Kilo_Code_Setup.md`](./AI_Kilo_Code_Setup.md)
+
+### 2) Настройка MCP-серверов
+
+```powershell
+npm install @bitbonsai/mcpvault
 ```
 
 Подробнее: [`Гайд MCP.md`](./Гайд%20MCP.md)
 
-### 2) Настройка Obsidian Second Brain
+### 3) Развертывание агентов
+
+```powershell
+git clone https://github.com/darrenhinde/OpenAgentsControl.git
+```
+
+Подробнее: [`Развертывание агентов для Kilo Code.md`](./Развертывание%20агентов%20для%20Kilo%20Code.md)
+
+### 4) Настройка Obsidian Second Brain
 
 1. Установить Obsidian с [obsidian.md](https://obsidian.md)
-2. Создать vault в `C:\Users\user\Desktop\Obsidian\Database`
+2. Создать vault
 3. Установить плагины: Dataview, Templater, Smart Connections
 4. Настроить MCP-сервер mcpvault
 
 Подробнее: [`Obsidian Second Brain Setup.md`](./Obsidian%20Second%20Brain%20Setup.md)
 
----
+### 5) Установка OpenCode Desktop
 
-## 📬 Контакты
+Скачать с [opencode.ai](https://opencode.ai)
 
-- 🔗 **Контакты автора**
-  • TG: [@MikhailPrasolov](https://t.me/MikhailPrasolov)
-  • Канал: [t.me/systemananalytics](https://t.me/systemananalytics)
+Подробнее: [`OpenCode Desktop Setup.md`](./OpenCode%20Desktop%20Setup.md)
 
 ---
 
-*Последнее обновление: Май 2026*
+*Последнее обновление: 2026-06-20*

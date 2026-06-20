@@ -51,7 +51,7 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet
 
 1. **Запустить Obsidian** → **Create new vault**
 2. **Vault name**: `Database` (или любое другое имя)
-3. **Location**: `C:\Users\user\Desktop\Obsidian\`
+3. **Location**: `C:\Users\<username>\Desktop\Obsidian\`
 4. Нажать **Create**
 
 ### 2.2. Структура директорий
@@ -437,7 +437,7 @@ npm install @bitbonsai/mcpvault
 ### 6.3. Проверка работы MCP
 
 ```powershell
-node "$env:USERPROFILE\.config\kilo\node_modules\@bitbonsai\mcpvault\dist\server.js" "C:\Users\user\Desktop\Obsidian\Database"
+node "$env:USERPROFILE\.config\kilo\node_modules\@bitbonsai\mcpvault\dist\server.js" "C:\Users\<username>\Desktop\Obsidian\Database"
 ```
 
 Ожидаемый вывод: `mcpvault v0.11.0` (сервер ожидает STDIO).
@@ -462,6 +462,21 @@ node "$env:USERPROFILE\.config\kilo\node_modules\@bitbonsai\mcpvault\dist\server
 | `get_vault_stats` | Статистика vault |
 | `list_all_tags` | Все теги с частотой |
 
+### 6.4.1. Все MCP-серверы в kilo.jsonc
+
+Всего может быть настроено **8+ MCP-серверов**:
+
+| Сервер | Ключ | Тип | Назначение |
+|--------|------|-----|-----------|
+| **Context7** | `context7` | remote | Документация библиотек |
+| **GitLab** | `gitlab-*` | local | GitLab (multi-instance) |
+| **Jira** | `jira` | local | Jira Data Center |
+| **Confluence** | `confluence` | local | Confluence Data Center |
+| **GitHub** | `github` | local | GitHub API |
+| **Obsidian** | `obsidian` | local | Obsidian Second Brain |
+| **MongoDB** | `mongodb` | local | MongoDB аналитика (read-only) |
+| **PostgreSQL** | `postgres` | local | PostgreSQL (read-only) |
+
 ### 6.5. Рабочий процесс с Kilo
 
 1. **Перед началом работы** — Kilo ищет релевантные заметки по теме
@@ -470,15 +485,67 @@ node "$env:USERPROFILE\.config\kilo\node_modules\@bitbonsai\mcpvault\dist\server
 4. **Инсайты** — сохраняет в `Insights/` с указанием контекста
 5. **Cross-links** — добавляет `[[wikilinks]]` и заполняет `related`
 
+### 6.6. Быстрые команды в Kilo
+
+```text
+# Поиск по заметкам
+search_notes(query="что ищем", limit=10)
+
+# Поиск по frontmatter
+search_notes(query="keyword", searchFrontmatter=true)
+
+# Создать заметку
+write_note(path="Conversations/2026-05-03-topic.md", content="# Title\n\nContent...", frontmatter={"title": "...", "type": "conversation", ...})
+
+# Прочитать заметку
+read_note(path="Decisions/2026-05-03-decision.md")
+
+# Обновить статус
+update_frontmatter(path="...", frontmatter={"status": "growing"})
+
+# Добавить тег
+manage_tags(path="...", operation="add", tags=["topic/new-tag"])
+
+# Статистика vault
+get_vault_stats()
+```
+
 ### 6.6. Агентские инструкции для Kilo
 
-Файл `C:\Users\user\.config\kilo\agent\obsidian.md` содержит инструкции для Kilo по работе с vault:
+Файл `C:\Users\<username>\.config\kilo\agent\obsidian.md` содержит инструкции для Kilo по работе с vault:
 
 - Правила создания заметок
 - Формат frontmatter
 - Статусная модель
 - Tag taxonomy
 - Правила именования файлов
+
+---
+
+## 6.1. Провайдеры моделей в kilo.jsonc
+
+В конфигурации `kilo.jsonc` можно настроить несколько провайдеров моделей:
+
+| Провайдер | Модели | Назначение |
+|-----------|--------|-----------|
+| **DeepSeek** (default) | `deepseek/deepseek-chat` | Основная модель |
+| **Kimi / Moonshot** | `kimi-k2.6`, `kimi-k2.5`, `moonshot-v1-*` | Альтернатива |
+| **LM Studio** (локально) | Локальные GGUF-модели | Локальные через localhost:1234 |
+
+### DeepSeek (по умолчанию)
+- Модель: `deepseek/deepseek-chat`
+- Доступна всегда, без дополнительной настройки
+
+### Kimi / Moonshot
+- Base URL: `https://api.moonshot.cn/v1`
+- Модели с разной длиной контекста (8K, 32K, 128K, auto)
+
+### LM Studio (локально)
+- Base URL: `http://127.0.0.1:1234/v1`
+- Требует запущенного LM Studio с включённым Local Service
+- **Важно:** Context Length не менее 128K для моделей с thinking mode
+
+Подробнее: [lm-studio-guide.md](./lm-studio-guide.md), [AI_Kilo_Code_Setup.md](./AI_Kilo_Code_Setup.md)
 
 ---
 
@@ -531,7 +598,7 @@ OpenAgent (универсальный оркестратор)
 ### 7.5. Пути к файлам агентов
 
 ```
-C:\Users\user\.config\kilo\agent\
+C:\Users\<username>\.config\kilo\agent\
 ├── obsidian.md                    # Primary-агент Obsidian
 ├── obsidian-swarm.md              # Primary-агент ObsidianSwarm
 └── subagents\
@@ -603,9 +670,9 @@ Auto-Changelog настроен в двух агентах Kilo:
 
 | Агент | Файл | Роль |
 |-------|------|------|
-| `openagent.md` | `C:\Users\user\.config\kilo\agent\openagent.md` | Stage 5: Auto-Changelog — запись изменений |
-| `obsidian.md` | `C:\Users\user\.config\kilo\agent\obsidian.md` | Раздел Auto-Changelog с процедурой |
-| `obsidian-daily.md` | `C:\Users\user\.config\kilo\agent\subagents\obsidian-daily.md` | Daily note содержит секцию `## Changes` |
+| `openagent.md` | `C:\Users\<username>\.config\kilo\agent\openagent.md` | Stage 5: Auto-Changelog — запись изменений |
+| `obsidian.md` | `C:\Users\<username>\.config\kilo\agent\obsidian.md` | Раздел Auto-Changelog с процедурой |
+| `obsidian-daily.md` | `C:\Users\<username>\.config\kilo\agent\subagents\obsidian-daily.md` | Daily note содержит секцию `## Changes` |
 
 ### 7.6. Преимущества
 
@@ -764,7 +831,7 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet
 
 ```powershell
 # Проверить, что сервер запускается
-node "$env:USERPROFILE\.config\kilo\node_modules\@bitbonsai\mcpvault\dist\server.js" "C:\Users\user\Desktop\Obsidian\Database"
+node "$env:USERPROFILE\.config\kilo\node_modules\@bitbonsai\mcpvault\dist\server.js" "C:\Users\<username>\Desktop\Obsidian\Database"
 # Должен вывести "mcpvault v0.11.0" и ждать STDIO
 ```
 
@@ -797,10 +864,10 @@ node "$env:USERPROFILE\.config\kilo\node_modules\@bitbonsai\mcpvault\dist\server
 | Ресурс | URL/Путь |
 |--------|---------|
 | Obsidian | https://obsidian.md |
-| Vault | `C:\Users\user\Desktop\Obsidian\Database` |
-| MCP-сервер | `C:\Users\user\.config\kilo\node_modules\@bitbonsai\mcpvault` |
-| Агентская инструкция | `C:\Users\user\.config\kilo\agent\obsidian.md` |
-| Конфигурация Kilo | `C:\Users\user\.config\kilo\kilo.jsonc` |
+| Vault | `C:\Users\<username>\Desktop\Obsidian\Database` |
+| MCP-сервер | `C:\Users\<username>\.config\kilo\node_modules\@bitbonsai\mcpvault` |
+| Агентская инструкция | `C:\Users\<username>\.config\kilo\agent\obsidian.md` |
+| Конфигурация Kilo | `C:\Users\<username>\.config\kilo\kilo.jsonc` |
 | MCPvault GitHub | https://github.com/bitbonsai/mcpvault |
 | Dataview | https://github.com/blacksmithgu/obsidian-dataview |
 | Templater | https://github.com/SilentVoid13/Templater |

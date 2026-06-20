@@ -1,5 +1,7 @@
 # 🤖 AI агенты — Материалы по AI/LLM
 
+> **Статус:** `growing` • **Уровень:** `средний` • **Для:** всех, кто использует AI в работе
+>
 > Руководства и сравнения по использованию AI-агентов и LLM для задач системного анализа и разработки
 
 ## 📋 Содержание
@@ -7,6 +9,14 @@
 1. [Описание материалов](#-описание-материалов)
 2. [Файлы разделов](#-файлы-разделов)
 3. [Использование с Kilo Code](#-использование-с-kilo-code)
+
+---
+
+## 🆕 Что нового
+
+| Дата | Изменение |
+|------|-----------|
+| 2026-06 | Добавлены метаданные, контекст agent workflow, cross-refs с demo_AI |
 
 ---
 
@@ -70,10 +80,28 @@
 
 ---
 
+## 🤖 Agent Workflow: как AI встроен в работу
+
+На основе практического опыта (Obsidian Second Brain + OpenCode/Kilo агенты) выработаны следующие паттерны:
+
+| Паттерн | Описание | Инструменты |
+|---------|----------|-------------|
+| **Оркестратор + суб-агенты** | Primary-агент координирует, суб-агенты выполняют специализированные задачи | OpenAgent + 7+ суб-агентов |
+| **Context-first** | Перед задачей — загрузка контекста из Obsidian/project | context-retriever, obsidian-context-retriever |
+| **MCP-интеграция** | Доступ к БД, GitLab, Jira, Confluence через MCP-серверы | mongodb, postgres, gitlab, jira, confluence |
+| **Changelog в реальном времени** | Каждое изменение → запись в Daily Note | obsidian-daily |
+| **Auto-Save Session** | Конец сессии → полное сохранение в Obsidian | obsidian-swarm + 6 суб-агентов |
+
+> Подробнее: [`Instructions/Гайд MCP.md`](../Instructions/Гайд%20MCP.md) • [`Instructions/Obsidian Second Brain Setup.md`](../Instructions/Obsidian%20Second%20Brain%20Setup.md)
+
+---
+
 ## 🔗 Связанные разделы
 
-- [Инструкции по настройке инструментов](../Instructions/README.md) — настройка MCP, Obsidian Second Brain
-- [Гайд MCP](../Instructions/Гайд%20MCP.md) — полное руководство по MCP-серверам Kilo Code
+- [demo_AI — демо-проекты AI-агентов](../demo_AI/README.md) — практические кейсы
+- [Project_obscence — анализ нецензурной лексики](../Project_obscence/README.md) — сравнение моделей
+- [Instructions — настройка MCP, Obsidian](../Instructions/README.md) — инфраструктура для агентов
+- [Гайд MCP — Context7 для AI](../Instructions/Гайд%20MCP.md) — MCP-серверы Kilo Code
 
 ## 📚 Ресурсы
 
@@ -85,12 +113,10 @@
 
 ## 📬 Контакты
 
-- 🔗 **Контакты автора**  
-  • TG: [@MikhailPrasolov](https://t.me/MikhailPrasolov)  
-  • Канал: [t.me/systemananalytics](https://t.me/systemananalytics)
-
-> Если заметили ошибку или хотите дополнить материалы — смело открывайте Issue или присылайте Pull Request!
+- **Автор:** Михаил Прасолов
+- **Telegram:** [@MikhailPrasolov](https://t.me/MikhailPrasolov)
+- **Канал:** [t.me/systemananalytics](https://t.me/systemananalytics)
 
 ---
 
-*Последнее обновление: Май 2026*
+*Последнее обновление: Июнь 2026*

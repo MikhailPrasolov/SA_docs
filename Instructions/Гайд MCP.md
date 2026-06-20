@@ -522,3 +522,148 @@ updated >= startOfDay()
 ---
 
 **⚠️ ВНИМАНИЕ:** Этот гайд содержит примеры конфигурации. Замените все значения `example.com`, `ВАШ_..._ЗДЕСЬ` и примеры токенов на реальные данные ваших сервисов.
+
+---
+
+### Jira Data Center — известные баги
+
+Пакет `@guhcostan/jira-mcp` v2.5.0 содержит **два бага** при работе с Jira Data Center:
+
+**Баг 1 — ADF формат:** Отправляет текстовые поля (`body`, `description`) в формате Atlassian Document Format (ADF: `{type: "doc", ...}`), который поддерживается только в Jira Cloud. Jira Data Center ожидает plain string.
+
+**Баг 2 — Assignee формат:** Отправляет assignee через `{ accountId: "..." }`, что работает только в Jira Cloud. Jira Data Center ожидает `{ name: "username" }`.
+
+**Решение:** Используйте фикшеную локальную копию пакета вместо `npx`:
+
+```jsonc
+"jira": {
+  "type": "local",
+  "command": [
+    "node",
+    "~/.config/kilo/mcp-jira-fixed/node_modules/@guhcostan/jira-mcp/build/index.js"
+  ],
+  "environment": {
+    "JIRA_URL": "https://jira.example.com",
+    "JIRA_ACCESS_TOKEN": "ВАШ_PAT"
+  },
+  "enabled": true,
+  "timeout": 60000
+}
+```
+
+### GitLab Multi-Instance
+
+Kilo Code автоматически добавляет префикс из ключа конфигурации ко всем инструментам MCP-сервера. Это позволяет запускать несколько инстансов GitLab:
+
+| Ключ | URL | Префикс инструментов |
+|------|-----|---------------------|
+| `gitlab-company` | `https://gitlab.company.ru/api/v4` | `gitlab-company_*` |
+| `gitlab-project` | `https://gitlab.project.ru/api/v4` | `gitlab-project_*` |
+
+Для GitLab версий <18 (без native MCP) используется `@yoda.digital/gitlab-mcp-server`:
+
+```jsonc
+"gitlab": {
+  "type": "local",
+  "command": ["npx", "-y", "@yoda.digital/gitlab-mcp-server"],
+  "environment": {
+    "GITLAB_API_URL": "https://gitlab.company.ru/api/v4",
+    "GITLAB_PERSONAL_ACCESS_TOKEN": "ВАШ_PAT",
+    "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+  },
+  "enabled": true,
+  "timeout": 30000
+}
+```
+
+### MongoDB MCP
+
+```jsonc
+"mongodb": {
+  "type": "local",
+  "command": ["npx", "-y", "mongodb-mcp-server", "mongodb://host:27017", "--readOnly"],
+  "enabled": true,
+  "timeout": 60000
+}
+```
+
+**Особенности:**
+- Всегда используйте `--readOnly` для безопасности
+- Для аналитических реплик: `directConnection=true` + `readPreference=nearest`
+
+### PostgreSQL MCP
+
+```jsonc
+"postgres": {
+  "type": "local",
+  "command": [
+    "npx", "-y", "@modelcontextprotocol/server-postgres",
+    "postgresql://USER:PASSWORD_URLENCODED@host:6432/dbname"
+  ],
+  "environment": {
+    "PGPASSWORD": "YOUR_PASSWORD_RAW"
+  },
+  "enabled": true,
+  "timeout": 60000
+}
+```
+
+**Особенности:**
+- Пароль со спецсимволами требует URL-encoding в connection string
+- Raw-пароль дублируется в `PGPASSWORD` environment
+- Для Yandex Cloud используется порт 6432
+
+### SSL-сертификаты в корпоративной сети
+
+Корпоративные серверы часто используют SSL-сертификаты, подписанные внутренним CA. Node.js не доверяет им по умолчанию:
+
+```
+Error: unable to verify the first certificate
+Error: unable to get local issuer certificate
+```
+
+**Решения (по приоритету):**
+
+1. **`NODE_TLS_REJECT_UNAUTHORIZED=0`** — отключает проверку SSL для конкретного MCP-сервера
+2. **`NODE_EXTRA_CA_CERTS`** — указывает путь к PEM-файлу с корневым сертификатом
+3. **Системное доверие** — добавление корневого CA в хранилище ОС
+
+### REST API через PowerShell (фоллбэк)
+
+Если MCP-сервер недоступен, можно использовать REST API напрямую:
+
+```powershell
+# Jira
+function Invoke-JiraApi {
+    param([string]$Method = "GET", [string]$Endpoint, [object]$Body = $null)
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+    $headers = @{
+        "Authorization" = "Bearer $env:JIRA_API_TOKEN"
+        "Content-Type"  = "application/json; charset=utf-8"
+    }
+    $uri = "https://jira.example.com/rest/api/2$Endpoint"
+    if ($Body) {
+        $jsonBody  = $Body | ConvertTo-Json -Depth 10 -Compress
+        $bodyBytes = [System.Text.Encoding]::UTF8.GetBytes($jsonBody)
+        $response  = Invoke-WebRequest -Uri $uri -Headers $headers -Method $Method -Body $bodyBytes -ErrorAction Stop
+    } else {
+        $response = Invoke-WebRequest -Uri $uri -Headers $headers -Method $Method -ErrorAction Stop
+    }
+    return $response.Content | ConvertFrom-Json
+}
+```
+
+```powershell
+# Confluence
+$headers = @{
+    "Authorization" = "Bearer $env:CONFLUENCE_API_TOKEN"
+    "Accept"        = "application/json"
+}
+Invoke-RestMethod -Uri "https://confluence.example.com/rest/api/space?limit=1" -Headers $headers
+```
+
+---
+
+**Последнее обновление:** 2026-06-20  
+**Конфигурация:** Только глобальная (`~/.config/kilo/kilo.jsonc`)  
+**Статус:** Актуально
