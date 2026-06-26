@@ -65,9 +65,9 @@ start projects_presentation.html
 ---
 
 ## 🔗 Связанные разделы
+- [AI-Agents — материалы по AI/LLM](../AI-Agents/README.md) — теория и настройка
 
-- [AI агенты — материалы по AI/LLM](../AI%20агенты/README.md) — теория и настройка
-- [Project_obscence — анализ нецензурной лексики](../Project_obscence/README.md) — сравнение моделей
+- [Project-Obscene — анализ нецензурной лексики](../Project-Obscene/README.md) — сравнение моделей
 - [Instructions — настройка инструментов](../Instructions/README.md) — инфраструктура
 
 ---

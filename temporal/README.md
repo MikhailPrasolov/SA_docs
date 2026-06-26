@@ -269,7 +269,7 @@ npm --version
 - [Database — моделирование БД](../Database/README.md) — данные для Temporal
 - [Structurizr — C4-диаграммы архитектуры](../Structurizr/README.md) — архитектура системы
 - [Sequence Plant UML — диаграммы последовательности](../Sequence%20Plant%20UML/README.md) — детализация сценариев
-- [AI агенты — AI/LLM для анализа](../AI%20агенты/README.md) — AI для генерации workflow
+- [AI-Agents — AI/LLM для анализа](../AI-Agents/README.md) — AI для генерации workflow
 
 ---
 

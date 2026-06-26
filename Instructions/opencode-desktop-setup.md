@@ -33,12 +33,12 @@
 │   ├── plantuml-architect.md  # Primary: PlantUML-схемы
 │   ├── obsidian-swarm.md      # Primary: Obsidian swarm-операции
 │   │
-│   └── subagents/             # Суб-агенты (20 шт.)
+│   └── subagents/             # Суб-агенты (22 шт.)
 │       ├── contextscout.md, externalscout.md, web-scout.md, task-manager.md
 │       ├── code-reviewer.md, batch-executor.md, stage-orchestrator.md
 │       ├── context-manager.md, context-retriever.md, documentation.md
 │       ├── gitlab-scout.md, github-scout.md, jira-scout.md, confluence-scout.md
-│       └── obsidian-*.md (6 шт.)
+│       └── obsidian-*.md (7 шт.)
 │
 ├── skills/                    # Скиллы (опционально)
 │
@@ -58,7 +58,8 @@ OpenCode использует **контекстную систему Kilo** —
 "provider": {
   "deepseek": {
     "models": {
-      "deepseek-chat": { "name": "DeepSeek Chat" }
+      "deepseek-v4-flash": { "name": "DeepSeek V4 Flash" },
+      "deepseek-v4-pro": { "name": "DeepSeek V4 Pro" }
     }
   },
   "moonshot": {
@@ -225,7 +226,7 @@ permission:
 
 ---
 
-## 5. Суб-агенты: 20 шт.
+## 5. Суб-агенты: 22 шт.
 
 ### 5.1. Контекстные (5 шт.)
 - `obsidian-context-retriever` — контекст из Obsidian (light mode)
@@ -240,7 +241,8 @@ permission:
 - `gitlab-scout` — GitLab: репозитории, MR, код
 - `github-scout` — GitHub: репозитории, PR, issues
 
-### 5.3. Исполнительные (5 шт.)
+### 5.3. Исполнительные (6 шт.)
+- `planner` — стратегическое планирование перед сложными задачами
 - `task-manager` — разбивка задач
 - `code-reviewer` — ревью кода
 - `batch-executor` — параллельное выполнение
@@ -251,9 +253,9 @@ permission:
 - `context-manager` — жизненный цикл контекста
 - `context-retriever` — единый контекстный поиск
 
-### 5.5. Obsidian (6 шт.)
+### 5.5. Obsidian (7 шт.)
 - `obsidian-context-retriever`, `obsidian-daily`, `obsidian-decisions`
-- `obsidian-moc`, `obsidian-insights`, `obsidian-tag-manager`
+- `obsidian-moc`, `obsidian-insights`, `obsidian-tag-manager`, `obsidian-telegram`
 
 ---
 
@@ -277,9 +279,9 @@ permission:
 
 В конце сессии — ОБЯЗАТЕЛЬНО полное сохранение через ObsidianSwarm:
 
-1. Conversation → `Conversations/YYYY-MM-DD-*.md`
-2. Decisions → `Decisions/ADR-*.md`
-3. Insights → `Insights/*.md`
+1. Conversation → `40_AI-Sessions/Conversations/YYYY-MM-DD-*.md`
+2. Decisions → `30_Resources/Decisions/ADR-*.md`
+3. Insights → `30_Resources/Insights/*.md`
 4. MOC → обновление карт
 5. Tags → реорганизация
 6. Daily → обновление

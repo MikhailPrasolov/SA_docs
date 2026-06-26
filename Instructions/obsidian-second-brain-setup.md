@@ -480,9 +480,9 @@ node "$env:USERPROFILE\.config\kilo\node_modules\@bitbonsai\mcpvault\dist\server
 ### 6.5. Рабочий процесс с Kilo
 
 1. **Перед началом работы** — Kilo ищет релевантные заметки по теме
-2. **В процессе** — сохраняет ключевые решения в `Decisions/`
-3. **После сессии** — создаёт запись в `Conversations/` с summary
-4. **Инсайты** — сохраняет в `Insights/` с указанием контекста
+2. **В процессе** — сохраняет ключевые решения в `30_Resources/Decisions/`
+3. **После сессии** — создаёт запись в `40_AI-Sessions/Conversations/` с summary
+4. **Инсайты** — сохраняет в `30_Resources/Insights/` с указанием контекста
 5. **Cross-links** — добавляет `[[wikilinks]]` и заполняет `related`
 
 ### 6.6. Быстрые команды в Kilo
@@ -528,12 +528,12 @@ get_vault_stats()
 
 | Провайдер | Модели | Назначение |
 |-----------|--------|-----------|
-| **DeepSeek** (default) | `deepseek/deepseek-chat` | Основная модель |
+| **DeepSeek V4** (default) | `deepseek/deepseek-v4-flash`, `deepseek/deepseek-v4-pro` | Основная модель |
 | **Kimi / Moonshot** | `kimi-k2.6`, `kimi-k2.5`, `moonshot-v1-*` | Альтернатива |
 | **LM Studio** (локально) | Локальные GGUF-модели | Локальные через localhost:1234 |
 
 ### DeepSeek (по умолчанию)
-- Модель: `deepseek/deepseek-chat`
+- Модель: `deepseek/deepseek-v4-flash` (по умолчанию) / `deepseek/deepseek-v4-pro`
 - Доступна всегда, без дополнительной настройки
 
 ### Kimi / Moonshot
@@ -622,7 +622,7 @@ C:\Users\<username>\.config\kilo\agent\
 
 1. Определяет тип изменения (created/modified/renamed/deleted)
 2. Определяет проект по пути (My-work, SA_docs, .config/kilo и т.д.)
-3. Открывает daily note за сегодня (`Daily/YYYY-MM-DD.md`)
+3. Открывает daily note за сегодня (`20_Areas/Daily/YYYY-MM-DD.md`)
 4. Добавляет запись в секцию `## Changes` (режим append)
 5. Обновляет `updated` в frontmatter daily note
 
@@ -718,7 +718,7 @@ Auto-Changelog настроен в двух агентах Kilo:
 
 ### 9.4. Пример conversation
 
-Файл `Conversations/2026-05-04-kebab-case-title.md`:
+Файл `40_AI-Sessions/Conversations/2026-05-04-kebab-case-title.md`:
 
 ```markdown
 ---
@@ -793,7 +793,7 @@ seed → growing → evergreen → archived
 | `seed` | Только что создана, сырая идея |
 | `growing` | Развивается, добавляются связи |
 | `evergreen` | Зрелая, проверенная, стабильная |
-| `archived` | Устарела, но не удалена (в `Archive/`) |
+| `archived` | Устарела, но не удалена (в `90_Archive/`) |
 
 ### 7.3. Tag taxonomy
 

@@ -98,8 +98,8 @@
 
 ## 🔗 Связанные разделы
 
-- [demo_AI — демо-проекты AI-агентов](../demo_AI/README.md) — практические кейсы
-- [Project_obscence — анализ нецензурной лексики](../Project_obscence/README.md) — сравнение моделей
+- [demo-AI — демо-проекты AI-агентов](../demo-AI/README.md) — практические кейсы
+- [Project-Obscene — анализ нецензурной лексики](../Project-Obscene/README.md) — сравнение моделей
 - [Instructions — настройка MCP, Obsidian](../Instructions/README.md) — инфраструктура для агентов
 - [Гайд MCP — Context7 для AI](../Instructions/Гайд%20MCP.md) — MCP-серверы Kilo Code
 

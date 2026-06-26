@@ -12,10 +12,10 @@
 
 ## 📋 Что в папке
 
-- `Шаблон Sequence .wsd` — базовый шаблон для новых диаграмм.
-- `Пример Sequence.wsd` — детальный сценарий User Management.
-- `Пример Sequence - Оплата заказа.wsd` — современный платёжный поток (3DS + webhook + идемпотентность).
-- `Пример Sequence - Асинхронная интеграция.wsd` — пример событийной интеграции через Kafka/outbox.
+- [`sequence-template.wsd`](./sequence-template.wsd) — базовый шаблон для новых диаграмм.
+- [`sequence-example.wsd`](./sequence-example.wsd) — детальный сценарий User Management.
+- [`sequence-payment-example.wsd`](./sequence-payment-example.wsd) — современный платёжный поток (3DS + webhook + идемпотентность).
+- [`sequence-async-integration.wsd`](./sequence-async-integration.wsd) — пример событийной интеграции через Kafka/outbox.
 
 ---
 
